@@ -67,7 +67,10 @@ FLUSH PRIVILEGES;
 
 Here's how to include an image:
 
-![Alt text for screen readers](https://assets.digitalocean.com/logos/DO_Logo_horizontal_blue.png)
+<figure>
+	<a href="http://farm9.staticflickr.com/8426/7758832526_cc8f681e48_b.jpg"><img src="http://farm9.staticflickr.com/8426/7758832526_cc8f681e48_b.jpg"></a>
+	<figcaption><a title="Tes">Test</a>.</figcaption>
+</figure>
 
 Here is a note, a warning, some info and a draft note:
 
