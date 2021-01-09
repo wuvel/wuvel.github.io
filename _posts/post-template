@@ -1,0 +1,20 @@
+---
+title: "Post: Standard"
+categories:
+  - Blog
+tags:
+  - Post Formats
+  - readability
+  - standard
+---
+
+# Title Header (H1 header)
+
+### Introduction (H3 header)
+
+## Prerequisites (H2 header)
+
+<figure>
+	<center><a href="http://farm9.staticflickr.com/8426/7758832526_cc8f681e48_b.jpg"><img src="http://farm9.staticflickr.com/8426/7758832526_cc8f681e48_b.jpg"></a></center>
+	<!--<figcaption><a title="Tes">Test</a>.</figcaption>-->
+</figure>
