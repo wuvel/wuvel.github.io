@@ -1,5 +1,5 @@
 ---
-title: "TryHackMe - OASP Juice Shop"
+title: "TryHackMe - OWASP Juice Shop"
 categories:
   - Writeup
 tags:
