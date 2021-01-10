@@ -18,3 +18,6 @@ echo 'export PATH="$HOME/gems/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 
 gem install jekyll bundler
+
+## BurpSuite embed browser did not work
+sudo find .BurpSuite -name chrome-sandbox -exec chown root:root {} \; -exec chmod 4755 {} \;
