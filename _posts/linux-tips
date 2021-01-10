@@ -1,2 +1,7 @@
 ## Installing Shared Folder at VMware
 https://linuxhint.com/mount_vmware_shares_command_line_linux_vm/
+
+## Generate SSH Key
+```bash
+ssh-keygen -t rsa
+```
