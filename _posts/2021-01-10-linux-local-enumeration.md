@@ -212,12 +212,12 @@ flag: thm{REDACTED}
 - Assume we are accessing the target system as a non-root user and we found SUID bit enabled binaries, then those file/program/command can be run with root privileges.
 - SUID abuse is a common privilege escalation technique that allows us to gain root access by executing a root-owned binary with SUID enabled.
 - We can use this command to find all SUID file:
-```bash
-$ find / -perm -u=s -type f 2>/dev/null
+    ```bash
+    $ find / -perm -u=s -type f 2>/dev/null
 
-# -u=s searches files that are owned by the root user.
-# -type f search for files, not directories
-```
+    # -u=s searches files that are owned by the root user.
+    # -type f search for files, not directories
+    ```
 
 #### Which SUID binary has a way to escalate your privileges on the box?
 ```bash
