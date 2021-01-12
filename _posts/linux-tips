@@ -21,3 +21,7 @@ gem install jekyll bundler
 
 ## BurpSuite embed browser did not work
 sudo find .BurpSuite -name chrome-sandbox -exec chown root:root {} \; -exec chmod 4755 {} \;
+
+## Unzip
+$ sudo gzip -d rockyou.txt.gz 
+[sudo] password for kali:
