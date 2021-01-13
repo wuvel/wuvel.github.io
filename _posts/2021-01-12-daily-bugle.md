@@ -14,7 +14,7 @@ tags:
 Compromise a Joomla CMS account via SQLi, practise cracking hashes and escalate your privileges by taking advantage of yum.
 
 ## Scanning
-Im doing rustscan to all ports and with `aggressive` mode from nmap.
+Running `rustscan` to scan all ports and with `aggressive` mode from nmap.
 ```bash
 $ rustscan -a 10.10.89.61 -- -A  
 .----. .-. .-. .----..---.  .----. .---.   .--.  .-. .-.
