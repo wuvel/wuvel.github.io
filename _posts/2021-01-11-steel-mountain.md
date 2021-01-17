@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Steel Mountain"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - windows
   - powershell

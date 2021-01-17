@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - OWASP Juice Shop"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - OWASP Juice Shop
   - writeup

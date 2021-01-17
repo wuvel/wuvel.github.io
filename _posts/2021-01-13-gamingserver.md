@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - GamingServer"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - writeup

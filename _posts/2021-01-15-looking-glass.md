@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Looking Glass"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - sqli
   - writeup

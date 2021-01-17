@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Hashing - Crypto 101"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - crypto
   - hashing

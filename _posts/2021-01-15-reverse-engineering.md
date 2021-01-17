@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Reverse Engineering"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - sqli
   - writeup

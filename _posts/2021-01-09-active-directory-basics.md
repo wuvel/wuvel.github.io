@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Active Directory Basics"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - windows
   - active directory

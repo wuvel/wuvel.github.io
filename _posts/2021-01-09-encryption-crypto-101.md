@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Encryption - Crypto 101"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - crypto
   - encryption

@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Chill Hack"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - writeup

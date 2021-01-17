@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Agent Sudo"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - writeup

@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - What the Shell?"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - escalation
   - shell

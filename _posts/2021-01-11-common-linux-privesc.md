@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Common Linux Privesc"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - enumeration

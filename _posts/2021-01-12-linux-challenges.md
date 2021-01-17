@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Linux Challenges"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - basic
   - challenge

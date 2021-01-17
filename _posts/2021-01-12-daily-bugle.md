@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Daily Bugle"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - cms
   - sqli

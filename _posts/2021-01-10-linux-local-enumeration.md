@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Linux: Local Enumeration"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - enumeration

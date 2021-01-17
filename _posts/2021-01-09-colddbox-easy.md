@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - ColddBox: Easy"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - escalation
   - privesc

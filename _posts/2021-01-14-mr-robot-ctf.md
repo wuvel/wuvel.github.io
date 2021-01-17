@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Mr Robot CTF"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - writeup

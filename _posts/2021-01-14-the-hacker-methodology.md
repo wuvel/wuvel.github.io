@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - The Hacker Methodology"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - writeup

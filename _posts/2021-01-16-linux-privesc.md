@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Linux PrivEsc"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - writeup

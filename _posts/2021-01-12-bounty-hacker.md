@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Bounty Hacker"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - writeup

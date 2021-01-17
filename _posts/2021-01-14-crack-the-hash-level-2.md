@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Crack The Hash Level 2"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - writeup

@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Crack the hash"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - writeup

@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Reversing ELF"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - ctf
   - writeup

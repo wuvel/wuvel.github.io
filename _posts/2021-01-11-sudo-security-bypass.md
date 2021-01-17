@@ -1,7 +1,7 @@
 ---
 title: "TryHackMe - Sudo Security Bypass"
 categories:
-  - Writeup
+  - TryHackMe
 tags:
   - linux
   - cve
