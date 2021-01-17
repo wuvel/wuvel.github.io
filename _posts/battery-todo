@@ -1,0 +1,168 @@
+---
+title: "TryHackMe - battery"
+categories:
+  - Writeup
+tags:
+  - linux
+  - writeup
+  - tryhackme
+  - hacking
+  - ctf
+---
+CTF designed by CTF lover for CTF lovers
+
+## Scanning
+
+```bash
+$ rustscan -a 10.10.213.190 -- -A
+.----. .-. .-. .----..---.  .----. .---.   .--.  .-. .-.
+| {}  }| { } |{ {__ {_   _}{ {__  /  ___} / {} \ |  `| |
+| .-. \| {_} |.-._} } | |  .-._} }\     }/  /\  \| |\  |
+`-' `-'`-----'`----'  `-'  `----'  `---' `-'  `-'`-' `-'
+The Modern Day Port Scanner.
+________________________________________
+: https://discord.gg/GFrQsGy           :
+: https://github.com/RustScan/RustScan :
+ --------------------------------------
+🌍HACK THE PLANET🌍
+
+[~] The config file is expected to be at "/home/kali/.rustscan.toml"
+[!] File limit is lower than default batch size. Consider upping with --ulimit. May cause harm to sensitive servers
+[!] Your file limit is very small, which negatively impacts RustScan's speed. Use the Docker image, or up the Ulimit with '--ulimit 5000'. 
+Open 10.10.213.190:22
+Open 10.10.213.190:80
+[~] Starting Script(s)
+[>] Script to be run Some("nmap -vvv -p {{port}} {{ip}}")
+
+[~] Starting Nmap 7.91 ( https://nmap.org ) at 2021-01-16 03:56 EST
+NSE: Loaded 153 scripts for scanning.
+NSE: Script Pre-scanning.
+NSE: Starting runlevel 1 (of 3) scan.
+Initiating NSE at 03:56
+Completed NSE at 03:56, 0.00s elapsed
+NSE: Starting runlevel 2 (of 3) scan.
+Initiating NSE at 03:56
+Completed NSE at 03:56, 0.00s elapsed
+NSE: Starting runlevel 3 (of 3) scan.
+Initiating NSE at 03:56
+Completed NSE at 03:56, 0.00s elapsed
+Initiating Ping Scan at 03:56
+Scanning 10.10.213.190 [2 ports]
+Completed Ping Scan at 03:56, 0.20s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 03:56
+Completed Parallel DNS resolution of 1 host. at 03:56, 13.01s elapsed
+DNS resolution of 1 IPs took 13.01s. Mode: Async [#: 1, OK: 0, NX: 0, DR: 1, SF: 0, TR: 3, CN: 0]
+Initiating Connect Scan at 03:56
+Scanning 10.10.213.190 [2 ports]
+Discovered open port 22/tcp on 10.10.213.190
+Discovered open port 80/tcp on 10.10.213.190
+Completed Connect Scan at 03:56, 0.20s elapsed (2 total ports)
+Initiating Service scan at 03:56
+Scanning 2 services on 10.10.213.190
+Completed Service scan at 03:57, 6.42s elapsed (2 services on 1 host)
+NSE: Script scanning 10.10.213.190.
+NSE: Starting runlevel 1 (of 3) scan.
+Initiating NSE at 03:57
+Completed NSE at 03:57, 6.17s elapsed
+NSE: Starting runlevel 2 (of 3) scan.
+Initiating NSE at 03:57
+Completed NSE at 03:57, 0.80s elapsed
+NSE: Starting runlevel 3 (of 3) scan.
+Initiating NSE at 03:57
+Completed NSE at 03:57, 0.00s elapsed
+Nmap scan report for 10.10.213.190
+Host is up, received syn-ack (0.20s latency).
+Scanned at 2021-01-16 03:56:43 EST for 27s
+
+PORT   STATE SERVICE REASON  VERSION
+22/tcp open  ssh     syn-ack OpenSSH 6.6.1p1 Ubuntu 2ubuntu2 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   1024 14:6b:67:4c:1e:89:eb:cd:47:a2:40:6f:5f:5c:8c:c2 (DSA)
+| ssh-dss AAAAB3NzaC1kc3MAAACBAPe2PVDHBBlUCEtHNVxjToY/muZpZ4hrISDM7fuGOkh/Lp9gAwpEh24Y/u197WBDTihDJsDZJqrJEJSWbpiZgReyh1LtJTt3ag8GrUUDJCNx6lLUIWR5iukdpF7A2EvV4gFn7PqbmJmeeQRtB+vZJSp6VcjEG0wYOcRw2Z6N6ho3AAAAFQCg45+RiUGvOP0QLD6PPtrMfuzdQQAAAIEAxCPXZB4BiX72mJkKcVJPkqBkL3t+KkkbDCtICWi3d88rOqPAD3yRTKEsASHqSYfs6PrKBd50tVYgeL+ss9bP8liojOI7nP0WQzY2Zz+lfPa+d0uzGPcUk0Wg3EyLLrZXipUg0zhPjcXtxW9+/H1YlnIFoz8i/WWJCVaUTIR3JOoAAACBAMJ7OenvwoThUw9ynqpSoTPKYzYlM6OozdgU9d7R4XXgFXXLXrlL0Fb+w7TT4PwCQO1xJcWp5xJHi9QmXnkTvi386RQJRJyI9l5kM3E2TRWCpMMQVHya5L6PfWKf08RYGp0r3QkQKsG1WlvMxzLCRsnaVBqCLasgcabxY7w6e2EM
+|   2048 66:42:f7:91:e4:7b:c6:7e:47:17:c6:27:a7:bc:6e:73 (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCkDLTds2sLmn9AZ0KAl70Fu5gfx5T6MDJehrsCzWR3nIVczHLHFVP+jXDzCcB075jjXbb+6IYFOdJiqgnv6SFxk85kttdvGs/dnmJ9/btJMgqJI0agbWvMYlXrOSN26Db3ziUGrddEjTT74Z1kokg8d7uzutsfZjxxCn0q75NDfDpNNMLlstOEfMX/HtOUaLQ47IeuSpaQoUkNkHF2SGoTTpbC+avzcCNHRIZEwQ6HdA3vz1OY6TnpAk8Gu6st9XoDGblGt7xv1vyt0qUdIYaKib8ZJQyj1vb+SJx6dCljix4yDX+hbtyKn08/tRfNeRhVSIIymOTxSGzBru2mUiO5
+|   256 a8:6a:92:ca:12:af:85:42:e4:9c:2b:0e:b5:fb:a8:8b (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCYHRWUDqeSQgon8sLFyvLMQygCx01yXZR6kxiT/DnZU+3x6QmTUir0HaiwM/n3aAV7eGigds0GPBEVpmnw6iu4=
+|   256 62:e4:a3:f6:c6:19:ad:30:0a:30:a1:eb:4a:d3:12:d3 (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILW7vyhbG1WLLhSEDM0dPxFisUrf7jXiYWNSTqw6Exri
+80/tcp open  http    syn-ack Apache httpd 2.4.7 ((Ubuntu))
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.4.7 (Ubuntu)
+|_http-title: Site doesn't have a title (text/html).
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+```
+
+Port 80 and 22 open!
+
+## Enumeration
+Let's check the port 80.
+
+<a href="/assets/images/tryhackme/battery/1.png"><img src="/assets/images/tryhackme/battery/1.png"></a>
+
+Nothing :/. Let's run `gobuster` to scan the directories and files.
+
+```bash
+$ gobuster dir -u 10.10.213.190 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php,jpg,html,css,jpeg,txt
+===============================================================
+Gobuster v3.0.1
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@_FireFart_)
+===============================================================
+[+] Url:            http://10.10.213.190
+[+] Threads:        50
+[+] Wordlist:       /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Status codes:   200,204,301,302,307,401,403
+[+] User Agent:     gobuster/3.0.1
+[+] Extensions:     php,jpg,html,css,jpeg,txt
+[+] Timeout:        10s
+===============================================================
+2021/01/16 04:00:59 Starting gobuster
+===============================================================
+/register.php (Status: 200)
+/index.html (Status: 200)
+/admin.php (Status: 200)
+/scripts (Status: 301)
+/forms.php (Status: 200)
+/report (Status: 200)
+/logout.php (Status: 302)
+/dashboard.php (Status: 302)
+/acc.php (Status: 200)
+```
+
+Let's check the `register.php` file.
+
+<a href="/assets/images/tryhackme/battery/2.png"><img src="/assets/images/tryhackme/battery/2.png"></a>
+
+Let's try to register.
+
+<a href="/assets/images/tryhackme/battery/3.png"><img src="/assets/images/tryhackme/battery/3.png"></a>
+
+Now, let's try to login.
+
+<a href="/assets/images/tryhackme/battery/4.png"><img src="/assets/images/tryhackme/battery/4.png"></a>
+
+Here is the dashboard view.
+
+<a href="/assets/images/tryhackme/battery/5.png"><img src="/assets/images/tryhackme/battery/5.png"></a>
+
+Normal bank features, we can't access the `my account` and `command` menu though. Let's try to check the `/report` file.
+
+<a href="/assets/images/tryhackme/battery/6.png"><img src="/assets/images/tryhackme/battery/6.png"></a>
+
+A file? Let's check it and run it.
+
+```bash
+$ file report 
+report: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=44ffe4e81d688f7b7fe59bdf74b03f828a4ef3fe, for GNU/Linux 3.2.0, not stripped
+
+$ chmod +x report
+$ ./report    
+
+Welcome To ABC DEF Bank Managemet System!
+
+UserName : a
+Password : a
+Wrong username or password
+```
+
+Hemm, let's see what's inside using IDA.
