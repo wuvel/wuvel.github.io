@@ -5,6 +5,7 @@ categories:
 tags:
   - ctf
 ---
+CTF Collection, only Web Exploitation.
 
 ## PHP Eval with math function only (Calc.exe - BambooFox CTF 2021)
 We got a simple calculator app based on PHP and it will catch the `_GET['expression']` parameter as our input.
@@ -89,4 +90,38 @@ Final payload will be `HTtp:/ｔhＥ.c0o₀O⁰L-fl4⁴４g｡sEｒvｅr．inＴ
 
 <a href="/assets/images/ctf/bamboo/15.png"><img src="/assets/images/ctf/bamboo/15.png"></a>
 
+## PHP Challenge (ヽ(#`Д´)ﾉ - BambooFox CTF 2021)
+<a href="/assets/images/ctf/bamboo/16.png"><img src="/assets/images/ctf/bamboo/16.png"></a>
 
+Our input is verified to be less than 0xA characters and not contain any alphanumeric characters. It is then `eval`'d after being passed through `print\_r`. The catch is the length and character checks are done using `!strlen` and `!preg_match` instead of `cond!==false`.
+
+We can pass in an array and it will always bypass these checks, the next thing is to construct input that is valid PHP after being passed in. The PHP parser doesn't really like the array output, and will first throw a syntax error. We can deal with this by adding a constant and closing parenthesis.
+
+We then get an `illegal offset type` error. I was able to get around this by making the array indice a variable, which gives a `illegal offset type` warning (I have no idea). Now that our input is accepted as PHP we just add a ``print \`cat /flag\*\`` to get our flag.
+
+<a href="/assets/images/ctf/bamboo/18.png"><img src="/assets/images/ctf/bamboo/18.png"></a>
+<a href="/assets/images/ctf/bamboo/19.png"><img src="/assets/images/ctf/bamboo/19.png"></a>
+
+The result: 
+
+<a href="/assets/images/ctf/bamboo/17.png"><img src="/assets/images/ctf/bamboo/17.png"></a>
+
+Alternative: `%E3%83%BD(%23%60%D0%94%C2%B4)%EF%BE%89[0/*]=1*/]);system("cat%20/flag_de42537a7dd854f4ce27234a103d4362");/*`.
+
+##### Resource:
+> - [https://github.com/Seraphin-/ctf/blob/master/bamboofox_2021/face.md](https://github.com/Seraphin-/ctf/blob/master/bamboofox_2021/face.md)
+- [https://spotless.tech/bambooctf-2021-angryface-php.html](https://spotless.tech/bambooctf-2021-angryface-php.html)
+
+
+
+
+
+
+
+
+
+
+
+
+## Other
+- [https://github.com/Kirill89/prototype-pollution-explained](https://github.com/Kirill89/prototype-pollution-explained)
