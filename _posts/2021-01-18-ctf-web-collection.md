@@ -65,7 +65,28 @@ So we got no flag. I found the flag is on the `/` directory.
 
 <a href="/assets/images/ctf/bamboo/10.png"><img src="/assets/images/ctf/bamboo/10.png"></a>
 
-Let's cat the flag!
+Let's `cat` the flag!
 
 <a href="/assets/images/ctf/bamboo/11.png"><img src="/assets/images/ctf/bamboo/11.png"></a>
+
+##### Resource:
+> - [https://www.anquanke.com/post/id/220813#h3-2](https://www.anquanke.com/post/id/220813#h3-2)
+- [https://northity.com/2019/04/23/CISCN2019Web-WP/#love-math](https://northity.com/2019/04/23/CISCN2019Web-WP/#love-math)
+
+## SSRF bypass using domain obfuscator (SSRFrog - BambooFox CTF 2021)
+Let's open the website.
+
+<a href="/assets/images/ctf/bamboo/12.png"><img src="/assets/images/ctf/bamboo/12.png"></a>
+
+Let's check the source code.
+
+<a href="/assets/images/ctf/bamboo/13.png"><img src="/assets/images/ctf/bamboo/13.png"></a>
+<a href="/assets/images/ctf/bamboo/14.png"><img src="/assets/images/ctf/bamboo/14.png"></a>
+
+We need to access the `http://the.c0o0o0l-fl444g.server.internal`. But, we can't use repeated characters. We can use this [domain obfuscator](https://splitline.github.io/domain-obfuscator/) to bypass this.
+
+Final payload will be `HTtp:/ｔhＥ.c0o₀O⁰L-fl4⁴４g｡sEｒvｅr．inＴeʳｎaｌ`. The result:
+
+<a href="/assets/images/ctf/bamboo/15.png"><img src="/assets/images/ctf/bamboo/15.png"></a>
+
 
