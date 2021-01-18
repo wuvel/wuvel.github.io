@@ -124,4 +124,5 @@ Alternative: `%E3%83%BD(%23%60%D0%94%C2%B4)%EF%BE%89[0/*]=1*/]);system("cat%20/f
 
 
 ## Other
-- [https://github.com/Kirill89/prototype-pollution-explained](https://github.com/Kirill89/prototype-pollution-explained)
+> - [https://github.com/Kirill89/prototype-pollution-explained](https://github.com/Kirill89/prototype-pollution-explained)
+- [https://medium.com/@Asm0d3us/part-1-php-tricks-in-web-ctf-challenges-e1981475b3e4](https://medium.com/@Asm0d3us/part-1-php-tricks-in-web-ctf-challenges-e1981475b3e4)
