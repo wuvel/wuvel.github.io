@@ -3,11 +3,9 @@ title: "TryHackMe - The find command"
 categories:
   - TryHackMe
 tags:
-  - stego
+  - find
   - writeup
   - tryhackme
-  - hacking
-  - privesc
 ---
 A learn-by-doing approach to the find command
 
