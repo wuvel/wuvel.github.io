@@ -275,6 +275,9 @@ Here is the flag: REDACTED
 Enjoy!!
 ```
 
+## Alternative to gain access
+- Using `stegcracker` to bruteforce the password to get the hidden file from brooklyn photo.
+
 ## Lesson learned
 - Anonymous FTP login with leftover note.
 - Weak user's password so we can bruteforce the SSH login.
