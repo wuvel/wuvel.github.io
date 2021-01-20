@@ -1,0 +1,149 @@
+---
+title: "Hack The Box - Delivery"
+categories:
+  - HackTheBox
+tags:
+  - hackthebox
+---
+Delivery is a HackTheBox machine here you will find the solution to obtain the flag `user.txt` and `root.txt`.
+
+## Scanning
+Scanning all ports.
+
+```bash
+$ rustscan -a 10.10.10.222 --ulimit 10000 -- -sC -sV -A -v -Pn
+.----. .-. .-. .----..---.  .----. .---.   .--.  .-. .-.
+| {}  }| { } |{ {__ {_   _}{ {__  /  ___} / {} \ |  `| |
+| .-. \| {_} |.-._} } | |  .-._} }\     }/  /\  \| |\  |
+`-' `-'`-----'`----'  `-'  `----'  `---' `-'  `-'`-' `-'
+The Modern Day Port Scanner.
+________________________________________
+: https://discord.gg/GFrQsGy           :
+: https://github.com/RustScan/RustScan :
+ --------------------------------------
+Real hackers hack time ⌛
+
+[~] The config file is expected to be at "/home/kali/.rustscan.toml"
+[~] Automatically increasing ulimit value to 10000.
+Open 10.10.10.222:22
+Open 10.10.10.222:80
+Open 10.10.10.222:8065
+[~] Starting Script(s)
+[>] Script to be run Some("nmap -vvv -p {{port}} {{ip}}")
+
+Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times will be slower.
+[~] Starting Nmap 7.91 ( https://nmap.org ) at 2021-01-19 06:23 EST
+NSE: Loaded 153 scripts for scanning.
+NSE: Script Pre-scanning.
+NSE: Starting runlevel 1 (of 3) scan.
+Initiating NSE at 06:23
+Completed NSE at 06:23, 0.00s elapsed
+NSE: Starting runlevel 2 (of 3) scan.
+Initiating NSE at 06:23
+Completed NSE at 06:23, 0.00s elapsed
+NSE: Starting runlevel 3 (of 3) scan.
+Initiating NSE at 06:23
+Completed NSE at 06:23, 0.00s elapsed
+Initiating Parallel DNS resolution of 1 host. at 06:23
+Completed Parallel DNS resolution of 1 host. at 06:23, 13.01s elapsed
+DNS resolution of 1 IPs took 13.01s. Mode: Async [#: 1, OK: 0, NX: 0, DR: 1, SF: 0, TR: 3, CN: 0]
+Initiating Connect Scan at 06:23
+Scanning 10.10.10.222 [3 ports]
+Discovered open port 22/tcp on 10.10.10.222
+Discovered open port 80/tcp on 10.10.10.222
+Discovered open port 8065/tcp on 10.10.10.222
+Completed Connect Scan at 06:23, 0.02s elapsed (3 total ports)
+Initiating Service scan at 06:23
+Scanning 3 services on 10.10.10.222
+Completed Service scan at 06:25, 86.86s elapsed (3 services on 1 host)
+NSE: Script scanning 10.10.10.222.
+NSE: Starting runlevel 1 (of 3) scan.
+Initiating NSE at 06:25
+Completed NSE at 06:25, 0.70s elapsed
+NSE: Starting runlevel 2 (of 3) scan.
+Initiating NSE at 06:25
+Completed NSE at 06:25, 1.02s elapsed
+NSE: Starting runlevel 3 (of 3) scan.
+Initiating NSE at 06:25
+Completed NSE at 06:25, 0.00s elapsed
+Nmap scan report for 10.10.10.222
+Host is up, received user-set (0.016s latency).
+Scanned at 2021-01-19 06:23:38 EST for 89s
+
+PORT     STATE SERVICE REASON  VERSION
+22/tcp   open  ssh     syn-ack OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 9c:40:fa:85:9b:01:ac:ac:0e:bc:0c:19:51:8a:ee:27 (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCq549E025Q9FR27LDR6WZRQ52ikKjKUQLmE9ndEKjB0i1qOoL+WzkvqTdqEU6fFW6AqUIdSEd7GMNSMOk66otFgSoerK6MmH5IZjy4JqMoNVPDdWfmEiagBlG3H7IZ7yAO8gcg0RRrIQjE7XTMV09GmxEUtjojoLoqudUvbUi8COHCO6baVmyjZRlXRCQ6qTKIxRZbUAo0GOY8bYmf9sMLf70w6u/xbE2EYDFH+w60ES2K906x7lyfEPe73NfAIEhHNL8DBAUfQWzQjVjYNOLqGp/WdlKA1RLAOklpIdJQ9iehsH0q6nqjeTUv47mIHUiqaM+vlkCEAN3AAQH5mB/1
+|   256 5a:0c:c0:3b:9b:76:55:2e:6e:c4:f4:b9:5d:76:17:09 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAiAKnk2lw0GxzzqMXNsPQ1bTk35WwxCa3ED5H34T1yYMiXnRlfssJwso60D34/IM8vYXH0rznR9tHvjdN7R3hY=
+|   256 b7:9d:f7:48:9d:a2:f2:76:30:fd:42:d3:35:3a:80:8c (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEV5D6eYjySqfhW4l4IF1SZkZHxIRihnY6Mn6D8mLEW7
+80/tcp   open  http    syn-ack nginx 1.14.2
+| http-methods: 
+|_  Supported Methods: GET HEAD
+|_http-server-header: nginx/1.14.2
+|_http-title: Welcome
+8065/tcp open  unknown syn-ack
+| fingerprint-strings: 
+|   GenericLines, Help, RTSPRequest, SSLSessionReq, TerminalServerCookie: 
+|     HTTP/1.1 400 Bad Request
+|     Content-Type: text/plain; charset=utf-8
+|     Connection: close
+|     Request
+|   GetRequest: 
+|     HTTP/1.0 200 OK
+|     Accept-Ranges: bytes
+|     Cache-Control: no-cache, max-age=31556926, public
+|     Content-Length: 3108
+|     Content-Security-Policy: frame-ancestors 'self'; script-src 'self' cdn.rudderlabs.com
+|     Content-Type: text/html; charset=utf-8
+|     Last-Modified: Tue, 19 Jan 2021 10:57:05 GMT
+|     X-Frame-Options: SAMEORIGIN
+|     X-Request-Id: iwd9ur1ir7rg8rnrdusz45p9ca
+|     X-Version-Id: 5.30.0.5.30.1.57fb31b889bf81d99d8af8176d4bbaaa.false
+|     Date: Tue, 19 Jan 2021 11:23:45 GMT
+|     <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer"><title>Mattermost</title><meta name="mobile-web-app-capable" content="yes"><meta name="application-name" content="Mattermost"><meta name="format-detection" content="telephone=no"><link re
+|   HTTPOptions: 
+|     HTTP/1.0 405 Method Not Allowed
+|     Date: Tue, 19 Jan 2021 11:23:45 GMT
+|_    Content-Length: 0
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port8065-TCP:V=7.91%I=7%D=1/19%Time=6006C141%P=x86_64-pc-linux-gnu%r(Ge
+SF:nericLines,67,"HTTP/1\.1\x20400\x20Bad\x20Request\r\nContent-Type:\x20t
+SF:ext/plain;\x20charset=utf-8\r\nConnection:\x20close\r\n\r\n400\x20Bad\x
+SF:20Request")%r(GetRequest,DF3,"HTTP/1\.0\x20200\x20OK\r\nAccept-Ranges:\
+SF:x20bytes\r\nCache-Control:\x20no-cache,\x20max-age=31556926,\x20public\
+SF:r\nContent-Length:\x203108\r\nContent-Security-Policy:\x20frame-ancesto
+SF:rs\x20'self';\x20script-src\x20'self'\x20cdn\.rudderlabs\.com\r\nConten
+SF:t-Type:\x20text/html;\x20charset=utf-8\r\nLast-Modified:\x20Tue,\x2019\
+SF:x20Jan\x202021\x2010:57:05\x20GMT\r\nX-Frame-Options:\x20SAMEORIGIN\r\n
+SF:X-Request-Id:\x20iwd9ur1ir7rg8rnrdusz45p9ca\r\nX-Version-Id:\x205\.30\.
+SF:0\.5\.30\.1\.57fb31b889bf81d99d8af8176d4bbaaa\.false\r\nDate:\x20Tue,\x
+SF:2019\x20Jan\x202021\x2011:23:45\x20GMT\r\n\r\n<!doctype\x20html><html\x
+SF:20lang=\"en\"><head><meta\x20charset=\"utf-8\"><meta\x20name=\"viewport
+SF:\"\x20content=\"width=device-width,initial-scale=1,maximum-scale=1,user
+SF:-scalable=0\"><meta\x20name=\"robots\"\x20content=\"noindex,\x20nofollo
+SF:w\"><meta\x20name=\"referrer\"\x20content=\"no-referrer\"><title>Matter
+SF:most</title><meta\x20name=\"mobile-web-app-capable\"\x20content=\"yes\"
+SF:><meta\x20name=\"application-name\"\x20content=\"Mattermost\"><meta\x20
+SF:name=\"format-detection\"\x20content=\"telephone=no\"><link\x20re")%r(H
+SF:TTPOptions,5B,"HTTP/1\.0\x20405\x20Method\x20Not\x20Allowed\r\nDate:\x2
+SF:0Tue,\x2019\x20Jan\x202021\x2011:23:45\x20GMT\r\nContent-Length:\x200\r
+SF:\n\r\n")%r(RTSPRequest,67,"HTTP/1\.1\x20400\x20Bad\x20Request\r\nConten
+SF:t-Type:\x20text/plain;\x20charset=utf-8\r\nConnection:\x20close\r\n\r\n
+SF:400\x20Bad\x20Request")%r(Help,67,"HTTP/1\.1\x20400\x20Bad\x20Request\r
+SF:\nContent-Type:\x20text/plain;\x20charset=utf-8\r\nConnection:\x20close
+SF:\r\n\r\n400\x20Bad\x20Request")%r(SSLSessionReq,67,"HTTP/1\.1\x20400\x2
+SF:0Bad\x20Request\r\nContent-Type:\x20text/plain;\x20charset=utf-8\r\nCon
+SF:nection:\x20close\r\n\r\n400\x20Bad\x20Request")%r(TerminalServerCookie
+SF:,67,"HTTP/1\.1\x20400\x20Bad\x20Request\r\nContent-Type:\x20text/plain;
+SF:\x20charset=utf-8\r\nConnection:\x20close\r\n\r\n400\x20Bad\x20Request"
+SF:);
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+```
+
+## Enumeration
+Let's check the port 80 first.
+
+<a href="/assets/images/hackthebox/delivery/1.png"><img src="/assets/images/hackthebox/delivery/1.png"></a>
