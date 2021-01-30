@@ -7,6 +7,7 @@ tags:
   - tryhackme
   - enumeration
   - CVE-2019-14287
+  - vi
 ---
 Time to enter the warren...
 
