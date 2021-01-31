@@ -644,3 +644,4 @@ Follow the link and we got the flag.
 > - [https://github.com/Kirill89/prototype-pollution-explained](https://github.com/Kirill89/prototype-pollution-explained)
 - [https://medium.com/@Asm0d3us/part-1-php-tricks-in-web-ctf-challenges-e1981475b3e4](https://medium.com/@Asm0d3us/part-1-php-tricks-in-web-ctf-challenges-e1981475b3e4)
 - [Nginx alias path traversal](https://hackerone.com/reports/312510)
+- [SSTI Jinja2](https://hackmd.io/@Chivato/HyWsJ31dI)
