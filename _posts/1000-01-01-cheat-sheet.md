@@ -1,3 +1,6 @@
+---
+title: "Cheatsheet"
+---
 # Linux
 
 ### Stablilize Shell

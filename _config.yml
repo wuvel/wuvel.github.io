@@ -21,7 +21,7 @@ description: >- # this means to ignore newlines until "baseurl:"
   wuvel's InfoSec journey.
 twitter_username: wuvelatte
 github_username: wuvel
-minimal_mistakes_skin: dark
+minimal_mistakes_skin: air
 search: true
 breadcrumbs: true
 
