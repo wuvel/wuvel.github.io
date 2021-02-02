@@ -271,7 +271,7 @@ root
     # command = What command should be run
     ```
 
-## First, let's exit out of root from our previous task by typing "exit". Then use "su" to swap to user4, with the password "password"
+### First, let's exit out of root from our previous task by typing "exit". Then use "su" to swap to user4, with the password "password"
 ```bash
 user8@polobox:/home/user3$ su user4
 Password: 

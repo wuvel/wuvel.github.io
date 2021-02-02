@@ -27,6 +27,9 @@ less -R linlog.txt
 ### Execute as diffent user
 `sudo -u <user> <command>`
 
+### SUID and SGID
+find / -perm /6000 2>/dev/null
+
 ### FTP
 Connect to ftp on the machine<br/>
 `ftp user <ip>`
@@ -158,6 +161,8 @@ echo "" > --checkpoint=1
 ### Binary Exploits
 If there is a certain command running in a binary example `date` so we can create our own binary and add `/bin/bash` to and path so it gets executed<br/>
 `export PATH=<path_where_binary_is>/:$PATH`
+
+Example: `export PATH=/tmp:$PATH`
 
 ### Enumeration 
 * cat /etc/*release 
