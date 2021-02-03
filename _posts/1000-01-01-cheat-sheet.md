@@ -2,6 +2,7 @@
 title: "Cheatsheet"
 ---
 ## Linux
+For complete enumeration tricks, go [here](https://book.hacktricks.xyz/).
 
 ### Stablilize Shell
 1. ctrl+z
@@ -96,9 +97,10 @@ $ mount -t nfs <ip>:/<share_name> <directory_where_to_mount>
 
 * cronjobs for specific users are stored in `/var/spool/cron/cronjobs/`
 * `crontab -u <user> -e ` Check cronjobs for a specific user
-* `crontab -l`         cronjob for the current user
-* `cat /etc/crontab`  system wide cronjobs
-
+* `crontab -l` cronjob for the current user
+* `cat /etc/crontab`  system wide cronjobs 
+* `/etc/cron.d` or `/etc/cron.daily` or `/etc/cron.hourly` or `/etc/cron.monthly` or `/etc/cron.weekly`
+ 
 ### Finding Binaries
 
 * `find . - perm /4000` (user id uid) 
@@ -138,6 +140,19 @@ $ wget http://<ip>:port/<file>
 ```bash
 $ fcrackzip -u -D -p <path_to_wordlist> <archive.zip>
 ```
+
+### Cracking Hash
+- Hashcat, check the modes [here](https://hashcat.net/wiki/doku.php?id=example_hashes):
+
+    ```bash
+    $ hashcat -m <hash_mode> -a 0 hash.txt /usr/share/wordlists/rockyou.txt
+    ```
+
+- John. check the formats [here](http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats):
+
+    ```bash
+    $ john --format=<format> --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
+    ```
 
 ### Decrypting PGP key
 If you have `asc` key which can be used for PGP authentication then 
@@ -203,6 +218,23 @@ $ export PATH=<path_where_binary_is>/:$PATH
 # Example: `export PATH=/tmp:$PATH`
 ```
 
+### Postgress
+```bash
+$ psql
+
+# \list to list the databases
+# \c [DATABASE] to select the database [DATABASE]
+# \d to list the tables
+
+// Connect 
+$ psql -U <user>
+
+// Read files
+# CREATE TABLE demo(t text);
+# COPY demo from '[FILENAME]';
+# SELECT * FROM demo;
+```
+
 ### Enumeration 
 * `cat /etc/*release` 
 * `cat /etc/issue `
@@ -211,9 +243,30 @@ $ export PATH=<path_where_binary_is>/:$PATH
 * Running Linpeas
 * `ss -tulpn` (for ports that are open on the machine)
 
-## Allow restricted ports at Mozilla Firefox
-- `about:config`
-- `network.security.ports.banned.override` Set your port in string
+### Linux Tips: PTLab
+- `cat /home/<user>/<something>`. We can still cat the content if we can't list the content
+- Checking `.bash_history`.
+- `find /home -name .bash_history`. Finding `.bash_history` file. We can also check for `.zsh_history`, etc.
+- `find / -type f -name .bashrc 2>/dev/null`. Finding `.bashrc` file
+- `find /home -type f -name .bashrc -exec grep key {} \;`. Finding "key" inside all `.bashrc` file.
+- `find . -name .bash_history -exec grep -A 1 '^passwd' {} \;`. Finding line starting with passwd insid `.bash_history`.
+- `tar -xzv backup.tgz`. Extract tar.
+- `bunzip2 backup.bz2`. Extract bz2.
+- OpenSSL encrypt / decrypt:
+    - `openssl enc -aes256 -k P3NT35T3RL48 -in /tmp/backup.tgz  -out /tmp/backup.tgz.enc` Encrypt
+    - `openssl enc -aes256 -d -k P3NT35T3RL48 -in backup.tgz.enc -out abc.tgz`  Decrypt
+- If the machine has tomcat installed, check for `tomcat-users.xml` at `/etc/tomcat*`.
+- Checking ` /var/lib/mysql/mysql/user.MYD` for passwords.
+- Read files if we have access to mysql, `SELECT * LOAD_FILE('/var/lib/mysql-files/key.txt')`.
+
+
+
+
+
+
+
+
+
 
 
 
@@ -414,7 +467,7 @@ On Debian and Ubuntu, the majority of these are left within the "/var/log direct
 
 # Miscellaneous
 
-## Turning off xfce beeping sound
+### Turning off xfce beeping sound
 `xset b off`
 
 export HISTFILE=/dev/null found this it might help you out a little when doing KOTH it basically stops bash logging your commands in the ~/.bash_history file <br/>
@@ -422,3 +475,7 @@ sudo ifconfig tun0 down<br/>
 sudo ip link set tun0 down<br/>
 sudo ip link delete tun0<br/>
 sudo systemctl restart systemd-networkd ; sudo systemctl status systemd-networkd<br/>
+
+### Allow restricted ports at Mozilla Firefox
+- `about:config`
+- `network.security.ports.banned.override` Set your port in string
