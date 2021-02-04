@@ -72,7 +72,7 @@ comments:
 analytics:
   provider: "google-gtag"
   google:
-    tracking_id: "G-X3XCTXBG58"
+    tracking_id: "UA-188955727-1"
     anonymize_ip: false # default
 
 # Author nav
