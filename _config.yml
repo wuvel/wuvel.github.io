@@ -68,6 +68,13 @@ comments:
   disqus:
     shortname            : "wuvel-1"
 
+# Analytics
+analytics:
+  provider: "google-gtag"
+  google:
+    tracking_id: "G-X3XCTXBG58"
+    anonymize_ip: false # default
+
 # Author nav
 author:
   name   : "M Fikri Ashari"
