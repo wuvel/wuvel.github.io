@@ -5,7 +5,11 @@ categories:
 tags:
   - writeup
   - tryhackme
-  - linux privesc
+  - samba
+  - cracking hash
+  - sqli
+  - pico
+  - path spoofing
 ---
 A boot2root box that is modified from a box used in CuCTF by the team at Runcode.ninja
 
