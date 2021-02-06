@@ -437,7 +437,7 @@ $ feroxbuster -u http://<ip>/ -w <path_to_wordlist>
 $ dirsearch -u https://wuvel.net -e html,txt,php,jpg,jpeg,png,css,js,bak,conf,ini,md -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -r
 
 # Deeper recursive
-$ dirsearch -u https://wuvel.net -e html,txt,php,jpg,jpeg,png,css,js,bak,conf,ini,md -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -r -R3
+$ dirsearch -u https://wuvel.net -e html,txt,php,jpg,jpeg,png,css,js,bak,conf,ini,md -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -r -R 3
 
 # Excluding all the codes after -x flag
 $ dirsearch -u https://wuvel.net -e html,txt,php,jpg,jpeg,png,css,js,bak,conf,ini,md -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x 403,301,302
