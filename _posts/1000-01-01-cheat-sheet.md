@@ -243,6 +243,29 @@ $ sqlite3 <filename>
 # SELECT .... to extract the content of a table using SQL.
 ```
 
+### Recon
+- Check `robots.txt` file.
+- Check the 404 page.
+- Check `security.txt` at `/.well-known/security.txt`.
+- Check for directory listing.
+- Check common directories (`gobuster` will help).
+- Access the default virtual host (the IP). Both HTTP or HTTPS.
+- Check the HTTPS certificate.
+- Check the HTTP headers.
+- Take a screenshoot of massive targets using `aquatone` or `eyewitness`.
+    - `eyewitness --web -f targets.txt`/
+- Bruteforce vhost and visit it with `curl -H "Host: admin.hackycorp.com" http://hackycorp.com`.
+- Trigger error after spam request.
+- Check the TXT record. `dig domain.com TXT`.
+- Check the bind version using nmap. `nmap -n --script "dns-nsid" z.hackycorp.com`.
+- Check the company github repository.
+- Check the git log.
+- Check difference branch.
+- Check the deleted file (check Git section below).
+- Check the commit messages.
+- Check the aws s3 bucket. Example: `aws s3 cp s3://assets.hackycorp.com/key2.txt .`.
+
+
 ### Enumeration 
 * `cat /etc/*release` 
 * `cat /etc/issue `
@@ -351,12 +374,24 @@ $ run getgui -u [USER_NAME] -p [PASS]
 ## Git
 ### Dumping repository
 ```bash
-./gitdumper.sh <location_of_remote_or_local_repostiory_having./.git> <destination_folder>
+$ ./gitdumper.sh <location_of_remote_or_local_repostiory_having./.git> <destination_folder>
 ```
 
 ### Extracting information from repository
 ```bash
 $ ./extractor.sh <location_folder_having_.git_init> <extract_to_a_folder>
+```
+
+### Recover deleted files
+```bash
+# If you don't remember the exact path/name, search the log for deleted files
+git log --diff-filter=D --summary | grep delete
+
+# Find last commit for the deleted file
+git rev-list -n 1 HEAD -- $path
+
+# Checkout the commit before the the delete happened
+git checkout $commit^ -- $path
 ```
 
 ## Web
@@ -425,6 +460,7 @@ After logging into the wordpress dashboard , we can edit theme's 404.php page wi
 ### Gobuster
 * `gobuster dir -u http://<ip>/ -w <path_to_wordlist>`
 * `gobuster dir -u http://<ip>/ -w <path_to_wordlist> -s "204,301,302,307,401,403"` (use status code if 200 is configured to respond on the web server to every get request)
+* `gobuster vhost -u http://<ip>/ -w <path_to_wordlist>` for vhost.
 
 ### Feroxbuster
 ```bash
@@ -469,6 +505,12 @@ If there is a port 53 open on the machine you could do a zone transfer to get in
 
 ```bash
 $ dig axfr @<ip> <domain_name>
+```
+
+Zone transfer on the internal zone "int".
+
+```bash
+$ dig axfr @z.hackycorp.com int
 ```
 
 # King Of The Hill (KoTH)
