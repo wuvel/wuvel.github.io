@@ -513,7 +513,23 @@ Zone transfer on the internal zone "int".
 $ dig axfr @z.hackycorp.com int
 ```
 
-# King Of The Hill (KoTH)
+## Android
+- Checking `AndroidManifest.xml` file and checking the `res/values/strings.xml` file.
+    - `apktool -d <filename>`
+    - Unzip the apk, `d2j-dex2jar classes.dex`, unzip the jar, and decompile the class using `jad <filename>`.
+        - Download the dex2jar [here](https://sourceforge.net/projects/dex2jar/).
+        - Download the jad [here](https://varaneckas.com/jad/).
+- Check for the `assets` directory for important files from the Android Manifest file.
+- Check files inside `/smali` directory.
+    - Files starting with R, usually it's the UI.
+
+
+
+
+
+
+
+## King Of The Hill (KoTH)
 ### Monitoring and Closing Shell (Linux)
 * strace `debugging / tamper with processes`
 * gbd `c/c++ debugger`
