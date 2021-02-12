@@ -439,6 +439,204 @@ $ wfuzz -c -z file,wordlist.txt --hh=0  http://<ip>/<path>/?date=FUZZ
 $ bash -c "<bash_rev_shell>"
 ```
 
+### GraphQL
+- Get metadata about the information available.
+    - For older versions:
+
+        ```javascript
+        query IntrospectionQuery {
+            __schema {
+            queryType { name }
+            mutationType { name }
+            subscriptionType { name }
+            types {
+                ...FullType
+            }
+            directives {
+                name
+                description
+                args {
+                ...InputValue
+                }
+                onOperation
+                onFragment
+                onField
+            }
+            }
+        }
+
+        fragment FullType on __Type {
+            kind
+            name
+            description
+            fields(includeDeprecated: true) {
+            name
+            description
+            args {
+                ...InputValue
+            }
+            type {
+                ...TypeRef
+            }
+            isDeprecated
+            deprecationReason
+            }
+            inputFields {
+            ...InputValue
+            }
+            interfaces {
+            ...TypeRef
+            }
+            enumValues(includeDeprecated: true) {
+            name
+            description
+            isDeprecated
+            deprecationReason
+            }
+            possibleTypes {
+            ...TypeRef
+            }
+        }
+
+        fragment InputValue on __InputValue {
+            name
+            description
+            type { ...TypeRef }
+            defaultValue
+        }
+
+        fragment TypeRef on __Type {
+            kind
+            name
+            ofType {
+            kind
+            name
+            ofType {
+                kind
+                name
+                ofType {
+                kind
+                name
+                }
+            }
+            }
+        }
+        ```
+
+
+    - For more recent versions:
+
+        ```javascript
+        query IntrospectionQuery {
+            __schema {
+            queryType { name }
+            mutationType { name }
+            subscriptionType { name }
+            types {
+                ...FullType
+            }
+            directives {
+                name
+                description
+                args {
+                ...InputValue
+                }
+                locations
+            }
+            }
+        }
+
+        fragment FullType on __Type {
+            kind
+            name
+            description
+            fields(includeDeprecated: true) {
+            name
+            description
+            args {
+                ...InputValue
+            }
+            type {
+                ...TypeRef
+            }
+            isDeprecated
+            deprecationReason
+            }
+            inputFields {
+            ...InputValue
+            }
+            interfaces {
+            ...TypeRef
+            }
+            enumValues(includeDeprecated: true) {
+            name
+            description
+            isDeprecated
+            deprecationReason
+            }
+            possibleTypes {
+            ...TypeRef
+            } 
+        }   
+            
+        fragment InputValue on __InputValue {
+            name
+            description
+            type { ...TypeRef }
+            defaultValue
+        }     
+                
+        fragment TypeRef on __Type {
+            kind
+            name
+            ofType {
+            kind
+            name
+            ofType {
+                kind
+                name
+                ofType {
+                kind
+                name
+                }
+            }
+            } 
+        } 
+        ```    
+
+- To get more details:
+    
+    ```javascript
+    query MyQuery {
+    __schema {
+        types {
+        name
+        fields {
+        name
+        } 
+        
+        }
+    }
+    }
+    ```
+
+- Using one of these queries, you should get a list of queries that you can run in place of the getprojects used by the application.
+
+    ```javascript
+    query Query {
+    [NAME] {
+        id
+    }
+    }
+    ```
+
+
+
+
+
+
+
+
 
 ### Wordpress
 using wpscan we can find users or do some further enumeration of wordpress version
